@@ -8,7 +8,6 @@ export default function Home() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔸 Load data hanya sekali saat pertama buka halaman
   useEffect(() => {
     const storedData = localStorage.getItem('treatmentData');
     if (storedData) {
@@ -17,7 +16,6 @@ export default function Home() {
     setLoading(false);
   }, []);
 
-  // 🔸 Fungsi simpan ke localStorage & update state
   const handleSaveData = (newData) => {
     localStorage.setItem('treatmentData', JSON.stringify(newData));
     setData(newData);
@@ -37,12 +35,12 @@ export default function Home() {
         Laporan Pendapatan Terapis
       </h1>
 
-      {/* RINGKASAN TOTAL & PER TERAPIS */}
+      {/* ringkasan */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <SummaryReport data={data} />
       </div>
 
-      {/* TABLE INPUT & PER BULAN */}
+      {/* tble input data perbulan */}
       <SpreadsheetTable data={data} onSave={handleSaveData} />
     </div>
   );

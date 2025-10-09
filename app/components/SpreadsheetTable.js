@@ -20,7 +20,6 @@ const SpreadsheetTable = ({ data, onSave }) => {
 
   const [editIndex, setEditIndex] = useState(null);
 
-  // ✅ Saat props data berubah (misalnya saat halaman pertama kali load), sync ke tableData
   useEffect(() => {
     setTableData(data || []);
   }, [data]);
@@ -65,7 +64,7 @@ const SpreadsheetTable = ({ data, onSave }) => {
     }
 
     setTableData(updatedData);
-    onSave?.(updatedData); // ✅ simpan ke localStorage & parent
+    onSave?.(updatedData); 
     setFormData({
       tanggal: "",
       terapis: "",
@@ -95,21 +94,21 @@ const SpreadsheetTable = ({ data, onSave }) => {
   const totalNominal = tableData.reduce((sum, row) => sum + (Number(row.nominal) || 0), 0);
   const totalKomisi = tableData.reduce((sum, row) => sum + (Number(row.komisi) || 0), 0);
 
-  // Range tanggal
+  //tanggal
     const dates = tableData.map((row) => new Date(row.tanggal));
     const minDate = dates.length > 0 ? new Date(Math.min(...dates)).toLocaleDateString("id-ID") : "-";
     const maxDate = dates.length > 0 ? new Date(Math.max(...dates)).toLocaleDateString("id-ID") : "-";
 
-// 🔸 Rekap per bulan
+// rekap per bulan
 const monthlySummary = tableData.reduce((acc, row) => {
   if (!row.tanggal) return acc;
 
-  // Format tanggal: "09 Oktober 2025"
+  
   const parts = row.tanggal.split(" ");
   if (parts.length < 3) return acc;
 
-  const monthName = parts[1]; // Oktober
-  const year = parts[2];      // 2025
+  const monthName = parts[1]; 
+  const year = parts[2];      
   const monthKey = `${monthName} ${year}`;
 
   if (!acc[monthKey]) {
@@ -228,7 +227,7 @@ const monthlySummary = tableData.reduce((acc, row) => {
         </table>
       </div>
 
-      {/* 🔸 REKAP PER BULAN seperti Pendapatan per Terapis */}
+      {/* REKAP PER BULAN */}
       <div>
         <h2 className="text-lg font-bold mb-2">Pendapatan Per Bulan</h2>
         <table className="w-full table-auto border-collapse">

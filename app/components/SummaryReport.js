@@ -1,12 +1,10 @@
-// components/SummaryReport.js
-
 const SummaryReport = ({ data }) => {
-  // Fungsi untuk menghitung total pendapatan
+  // untuk menghitung total pendapatan
   const calculateTotal = (key) => {
     return data.reduce((sum, item) => sum + (Number(item[key]) || 0), 0);
   };
 
-  // Fungsi untuk menghitung pendapatan per terapis
+  // untuk menghitung pendapatan per terapis
   const calculatePerTerapis = () => {
     const report = {};
     data.forEach(item => {
