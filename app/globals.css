@@ -1,26 +1,37 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    font-family: 'Inter', sans-serif;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+:root {
+  --color-brown-50: #faf7f2;
+  --color-brown-100: #f4efea;
+  --color-brown-200: #e8d9cc;
+  --color-brown-300: #d2b48c;
+  --color-brown-400: #b59b77;
+  --color-brown-500: #9a8264;
+  --color-brown-600: #816c52;
+  --color-brown-700: #6b5a45;
+  --color-brown-800: #5c4d3d;
+  --color-brown-900: #4a3e31;
+}
+
+@tailwind utilities;
+
+@layer utilities {
+  .bg-brown-300 {
+    background-color: var(--color-brown-300);
+  }
+  .text-brown-600 {
+    color: var(--color-brown-600);
+  }
+  .hover\:bg-brown-400:hover {
+    background-color: var(--color-brown-400);
+  }
+  .focus\:ring-brown-300:focus {
+    --tw-ring-color: var(--color-brown-300);
+  }
 }
