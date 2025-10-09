@@ -26,21 +26,21 @@ export default function Home() {
   }
 
   return (
-    <div className="p-4 bg-gray-100 min-h-screen">
+    <div className="p-6 bg-gray-100 min-h-screen">
       <Head>
-        <title>Sistem Laporan Gaji Terapis</title>
+        <title>Sistem Laporan Pendapatan Terapis</title>
       </Head>
 
-      <h1 className="text-3xl font-bold mb-6 text-center">
+      <h1 className="text-4xl font-bold mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
         Laporan Pendapatan Terapis
       </h1>
 
-      {/* ringkasan */}
+      {/* Ringkasan */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <SummaryReport data={data} />
       </div>
 
-      {/* tble input data perbulan */}
+      {/* Tabel Input */}
       <SpreadsheetTable data={data} onSave={handleSaveData} />
     </div>
   );
