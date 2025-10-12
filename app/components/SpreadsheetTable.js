@@ -32,28 +32,23 @@ const SpreadsheetTable = ({ data, onSave }) => {
   };
 
   const handleAddOrUpdateData = () => {
-    if (!formData.terapis || !formData.shift || !formData.nominal) {
-      alert("Nama Terapis, Shift, dan Nominal wajib diisi!");
+    if (!formData.tanggal || !formData.terapis || !formData.shift || !formData.nominal) {
+      alert("Tanggal, Nama Terapis, Shift, dan Nominal wajib diisi!");
       return;
     }
-
-    const today = new Date().toLocaleDateString("id-ID", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
 
     let updatedData;
     if (editIndex !== null) {
       updatedData = [...tableData];
-      updatedData[editIndex] = { ...formData, tanggal: today };
+      updatedData[editIndex] = { ...formData };
       setEditIndex(null);
     } else {
-      updatedData = [...tableData, { ...formData, tanggal: today }];
+      updatedData = [...tableData, { ...formData }];
     }
 
     setTableData(updatedData);
     onSave?.(updatedData);
+
     setFormData({
       tanggal: "",
       terapis: "",
@@ -80,7 +75,7 @@ const SpreadsheetTable = ({ data, onSave }) => {
 
   const totalNominal = tableData.reduce((sum, row) => sum + (Number(row.nominal) || 0), 0);
 
-  // tanggal
+  // Format tanggal untuk rekap
   const dates = tableData.map((row) => new Date(row.tanggal));
   const minDate = dates.length > 0 ? new Date(Math.min(...dates)).toLocaleDateString("id-ID") : "-";
   const maxDate = dates.length > 0 ? new Date(Math.max(...dates)).toLocaleDateString("id-ID") : "-";
@@ -88,10 +83,9 @@ const SpreadsheetTable = ({ data, onSave }) => {
   // ✅ Rekap per bulan + terapis + komisi
   const monthlySummary = tableData.reduce((acc, row) => {
     if (!row.tanggal || !row.terapis) return acc;
-    const parts = row.tanggal.split(" ");
-    if (parts.length < 3) return acc;
-    const monthName = parts[1];
-    const year = parts[2];
+    const dateObj = new Date(row.tanggal);
+    const monthName = dateObj.toLocaleString("id-ID", { month: "long" });
+    const year = dateObj.getFullYear();
     const monthKey = `${monthName} ${year}`;
     const therapistKey = row.terapis;
 
@@ -106,30 +100,36 @@ const SpreadsheetTable = ({ data, onSave }) => {
     <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-200 space-y-8">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Input Data Transaksi</h2>
 
-      {/* Form Input */}
+      {/* 📝 Form Input */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {Object.keys(formData).map((key) =>
-          key !== "tanggal" ? (
-            <input
-              key={key}
-              type={key === "nominal" ? "number" : "text"}
-              name={key}
-              placeholder={
-                key.charAt(0).toUpperCase() +
-                key.slice(1) +
-                (["terapis", "shift", "nominal"].includes(key) ? " *" : "")
-              }
-              value={formData[key]}
-              onChange={handleChange}
-              className="border border-gray-300 bg-white text-gray-800 placeholder-gray-500 p-3 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm"
-            />
-          ) : null
-        )}
+        {Object.keys(formData).map((key) => (
+          <input
+            key={key}
+            type={
+              key === "nominal"
+                ? "number"
+                : key === "tanggal"
+                ? "date"
+                : "text"
+            }
+            name={key}
+            placeholder={
+              key === "tanggal"
+                ? "Tanggal *"
+                : key.charAt(0).toUpperCase() +
+                  key.slice(1) +
+                  (["terapis", "shift", "nominal"].includes(key) ? " *" : "")
+            }
+            value={formData[key]}
+            onChange={handleChange}
+            className="border border-gray-300 bg-white text-gray-800 outline-none placeholder-gray-500 p-3 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm"
+          />
+        ))}
       </div>
 
       <button
         onClick={handleAddOrUpdateData}
-        className={`px-6 py-2 rounded-xl font-semibold shadow-md transition duration-300 ease-in-out ${
+        className={`px-6 py-2 rounded-xl outline-none font-semibold shadow-md transition duration-300 ease-in-out ${
           editIndex !== null
             ? "bg-green-500 hover:bg-green-600 text-white"
             : "bg-indigo-600 text-white hover:bg-indigo-700"
@@ -138,7 +138,7 @@ const SpreadsheetTable = ({ data, onSave }) => {
         {editIndex !== null ? "✅ Update Data" : "➕ Tambah Data"}
       </button>
 
-      {/* Data Table */}
+      {/* 📋 Tabel Data */}
       <div className="overflow-x-auto border border-gray-200 rounded-xl">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -171,6 +171,8 @@ const SpreadsheetTable = ({ data, onSave }) => {
                     <td key={key} className="p-3 text-sm text-gray-700">
                       {key === "nominal"
                         ? `Rp ${Number(row[key]).toLocaleString("id-ID")}`
+                        : key === "tanggal"
+                        ? new Date(row[key]).toLocaleDateString("id-ID")
                         : row[key]}
                     </td>
                   ))}
@@ -209,25 +211,17 @@ const SpreadsheetTable = ({ data, onSave }) => {
         </table>
       </div>
 
-      {/* ✅ Rekap per Bulan & Terapis */}
+      {/* 📊 Rekap per Bulan & Terapis */}
       <div>
         <h2 className="text-xl font-bold mb-3 text-gray-800">📊 Pendapatan Per Bulan & Terapis</h2>
         <div className="overflow-x-auto border border-gray-200 rounded-xl">
           <table className="w-full border-collapse">
             <thead className="bg-gray-50">
               <tr>
-                <th className="p-3 border-b border-gray-200 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                  Bulan
-                </th>
-                <th className="p-3 border-b border-gray-200 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                  Terapis
-                </th>
-                <th className="p-3 border-b border-gray-200 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                  Total Nominal Treatment
-                </th>
-                <th className="p-3 border-b border-gray-200 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                  Total Komisi (2%)
-                </th>
+                <th className="p-3 border-b text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Bulan</th>
+                <th className="p-3 border-b text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Terapis</th>
+                <th className="p-3 border-b text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Total Nominal</th>
+                <th className="p-3 border-b text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Komisi (2%)</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -243,15 +237,11 @@ const SpreadsheetTable = ({ data, onSave }) => {
                     <tr key={`${month}-${terapis}`} className="hover:bg-indigo-50 transition-colors">
                       <td className="p-3 text-sm text-gray-700 font-medium">{month}</td>
                       <td className="p-3 text-sm text-gray-700">{terapis}</td>
-                      <td className="p-3 text-sm text-gray-700">
-                        <span className="font-semibold text-indigo-600">
-                          Rp {data.nominal.toLocaleString("id-ID")}
-                        </span>
+                      <td className="p-3 text-sm text-indigo-600 font-semibold">
+                        Rp {data.nominal.toLocaleString("id-ID")}
                       </td>
-                      <td className="p-3 text-sm text-gray-700">
-                        <span className="font-semibold text-green-600">
-                          Rp {(data.nominal * 0.02).toLocaleString("id-ID")}
-                        </span>
+                      <td className="p-3 text-sm text-green-600 font-semibold">
+                        Rp {(data.nominal * 0.02).toLocaleString("id-ID")}
                       </td>
                     </tr>
                   ))

@@ -83,7 +83,7 @@ const SummaryReport = ({ data }) => {
         </p>
         <button
           onClick={handleExportPDF}
-          className="w-full bg-indigo-600 text-white px-4 py-2 rounded-xl font-medium hover:bg-indigo-700 transition duration-300 ease-in-out shadow-md"
+          className="w-full outline-none bg-indigo-600 text-white px-4 py-2 rounded-xl font-medium hover:bg-indigo-700 transition duration-300 ease-in-out shadow-md"
         >
           ⬇️ Export PDF
         </button>
