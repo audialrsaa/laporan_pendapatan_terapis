@@ -85,24 +85,28 @@ const SpreadsheetTable = ({ data, onSave }) => {
   const minDate = dates.length > 0 ? new Date(Math.min(...dates)).toLocaleDateString("id-ID") : "-";
   const maxDate = dates.length > 0 ? new Date(Math.max(...dates)).toLocaleDateString("id-ID") : "-";
 
-  // rekap per bulan
+  // ✅ Rekap per bulan + terapis + komisi
   const monthlySummary = tableData.reduce((acc, row) => {
-    if (!row.tanggal) return acc;
+    if (!row.tanggal || !row.terapis) return acc;
     const parts = row.tanggal.split(" ");
     if (parts.length < 3) return acc;
     const monthName = parts[1];
     const year = parts[2];
     const monthKey = `${monthName} ${year}`;
-    if (!acc[monthKey]) {
-      acc[monthKey] = { nominal: 0 };
-    }
-    acc[monthKey].nominal += Number(row.nominal) || 0;
+    const therapistKey = row.terapis;
+
+    if (!acc[monthKey]) acc[monthKey] = {};
+    if (!acc[monthKey][therapistKey]) acc[monthKey][therapistKey] = { nominal: 0 };
+
+    acc[monthKey][therapistKey].nominal += Number(row.nominal) || 0;
     return acc;
   }, {});
 
   return (
-    <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-8 rounded-2xl shadow-xl text-white space-y-8">
-      {/* form */}
+    <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-200 space-y-8">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">Input Data Transaksi</h2>
+
+      {/* Form Input */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {Object.keys(formData).map((key) =>
           key !== "tanggal" ? (
@@ -113,11 +117,11 @@ const SpreadsheetTable = ({ data, onSave }) => {
               placeholder={
                 key.charAt(0).toUpperCase() +
                 key.slice(1) +
-                (["terapis", "shift", "nominal"].includes(key) ? "*" : "")
+                (["terapis", "shift", "nominal"].includes(key) ? " *" : "")
               }
               value={formData[key]}
               onChange={handleChange}
-              className="border border-white/30 bg-white/10 text-white placeholder-white/60 p-2 rounded-lg focus:ring-2 focus:ring-white focus:outline-none"
+              className="border border-gray-300 bg-white text-gray-800 placeholder-gray-500 p-3 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm"
             />
           ) : null
         )}
@@ -125,112 +129,133 @@ const SpreadsheetTable = ({ data, onSave }) => {
 
       <button
         onClick={handleAddOrUpdateData}
-        className={`px-5 py-2 rounded-lg font-medium shadow-lg backdrop-blur-sm transition-colors ${
+        className={`px-6 py-2 rounded-xl font-semibold shadow-md transition duration-300 ease-in-out ${
           editIndex !== null
-            ? "bg-green-400 hover:bg-green-500 text-white"
-            : "bg-white text-indigo-600 hover:bg-gray-100"
+            ? "bg-green-500 hover:bg-green-600 text-white"
+            : "bg-indigo-600 text-white hover:bg-indigo-700"
         }`}
       >
-        {editIndex !== null ? "Update Data" : "Tambah Data"}
+        {editIndex !== null ? "✅ Update Data" : "➕ Tambah Data"}
       </button>
 
-      {/* table */}
-      <div className="overflow-x-auto rounded-lg bg-white/10 backdrop-blur-sm">
-        <table className="w-full border-collapse">
-          <thead className="bg-white/20">
+      {/* Data Table */}
+      <div className="overflow-x-auto border border-gray-200 rounded-xl">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
             <tr>
               {Object.keys(formData).map((key) => (
-                <th key={key} className="p-3 text-left text-sm font-semibold border-b border-white/30">
+                <th
+                  key={key}
+                  className="p-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600"
+                >
                   {key.charAt(0).toUpperCase() + key.slice(1)}
                 </th>
               ))}
-              <th className="p-3 border-b border-white/30 text-sm font-semibold">Aksi</th>
+              <th className="p-3 text-xs font-semibold uppercase tracking-wider text-gray-600">Aksi</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-white divide-y divide-gray-200">
             {tableData.length === 0 ? (
               <tr>
                 <td
                   colSpan={Object.keys(formData).length + 1}
-                  className="text-center p-4 text-white/80"
+                  className="text-center p-6 text-gray-500 italic"
                 >
                   Belum ada data
                 </td>
               </tr>
             ) : (
               tableData.map((row, index) => (
-                <tr key={index} className="hover:bg-white/10 transition-colors">
+                <tr key={index} className="hover:bg-indigo-50 transition-colors">
                   {Object.keys(formData).map((key) => (
-                    <td key={key} className="p-3 border-b border-white/20">
+                    <td key={key} className="p-3 text-sm text-gray-700">
                       {key === "nominal"
                         ? `Rp ${Number(row[key]).toLocaleString("id-ID")}`
                         : row[key]}
                     </td>
                   ))}
-                  <td className="p-3 border-b border-white/20 space-x-2">
+                  <td className="p-3 space-x-2">
                     <button
                       onClick={() => handleEdit(index)}
-                      className="px-3 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500 text-sm font-medium"
+                      className="px-3 py-1 bg-yellow-400 text-white rounded-lg hover:bg-yellow-500 text-xs font-medium transition"
                     >
-                      Edit
+                      ✏️ Edit
                     </button>
                     <button
                       onClick={() => handleDelete(index)}
-                      className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm font-medium"
+                      className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 text-xs font-medium transition"
                     >
-                      Hapus
+                      🗑️ Hapus
                     </button>
                   </td>
                 </tr>
               ))
             )}
           </tbody>
-          <tfoot className="bg-white/20">
+          <tfoot className="bg-gray-100">
             <tr>
               <td
                 colSpan={Object.keys(formData).length - 1}
-                className="px-4 py-2 font-bold text-right"
+                className="px-4 py-3 font-bold text-right text-gray-700"
               >
-                Total ({minDate} s/d {maxDate}):
+                Total Nominal Periode ({minDate} s/d {maxDate}):
               </td>
-              <td className="border px-4 py-2 text-right font-semibold">
+              <td className="px-4 py-3 text-sm font-extrabold text-indigo-600">
                 Rp {totalNominal.toLocaleString("id-ID")}
               </td>
-              <td></td>
+              <td className="bg-gray-100"></td>
             </tr>
           </tfoot>
         </table>
       </div>
 
-      {/* rekap perbulan */}
+      {/* ✅ Rekap per Bulan & Terapis */}
       <div>
-        <h2 className="text-lg font-bold mb-3">Pendapatan Per Bulan</h2>
-        <div className="overflow-x-auto rounded-lg bg-white/10 backdrop-blur-sm">
+        <h2 className="text-xl font-bold mb-3 text-gray-800">📊 Pendapatan Per Bulan & Terapis</h2>
+        <div className="overflow-x-auto border border-gray-200 rounded-xl">
           <table className="w-full border-collapse">
-            <thead className="bg-white/20">
+            <thead className="bg-gray-50">
               <tr>
-                <th className="p-3 border-b border-white/30 text-left text-sm font-semibold">Bulan</th>
-                <th className="p-3 border-b border-white/30 text-left text-sm font-semibold">
+                <th className="p-3 border-b border-gray-200 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                  Bulan
+                </th>
+                <th className="p-3 border-b border-gray-200 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                  Terapis
+                </th>
+                <th className="p-3 border-b border-gray-200 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
                   Total Nominal Treatment
+                </th>
+                <th className="p-3 border-b border-gray-200 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                  Total Komisi (2%)
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="bg-white divide-y divide-gray-200">
               {Object.keys(monthlySummary).length === 0 ? (
                 <tr>
-                  <td colSpan={2} className="text-center p-4 text-white/80">
+                  <td colSpan={4} className="text-center p-4 text-gray-500 italic">
                     Belum ada data bulanan
                   </td>
                 </tr>
               ) : (
-                Object.entries(monthlySummary).map(([month, data]) => (
-                  <tr key={month} className="hover:bg-white/10 transition-colors">
-                    <td className="p-3 border-b border-white/20 font-medium">{month}</td>
-                    <td className="p-3 border-b border-white/20 text-right">
-                      Rp {data.nominal.toLocaleString("id-ID")}
-                    </td>
-                  </tr>
-                ))
+                Object.entries(monthlySummary).map(([month, therapists]) =>
+                  Object.entries(therapists).map(([terapis, data]) => (
+                    <tr key={`${month}-${terapis}`} className="hover:bg-indigo-50 transition-colors">
+                      <td className="p-3 text-sm text-gray-700 font-medium">{month}</td>
+                      <td className="p-3 text-sm text-gray-700">{terapis}</td>
+                      <td className="p-3 text-sm text-gray-700">
+                        <span className="font-semibold text-indigo-600">
+                          Rp {data.nominal.toLocaleString("id-ID")}
+                        </span>
+                      </td>
+                      <td className="p-3 text-sm text-gray-700">
+                        <span className="font-semibold text-green-600">
+                          Rp {(data.nominal * 0.02).toLocaleString("id-ID")}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )
               )}
             </tbody>
           </table>
