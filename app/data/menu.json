@@ -1,0 +1,427 @@
+[
+  {
+    "category": "BODY MASSAGE",
+    "name": "Ultimate Aromatherapy Healing",
+    "options": [
+      { "durationMin": 60, "price": 549000 },
+      { "durationMin": 90, "price": 649000 }
+    ]
+  },
+  {
+    "category": "BODY MASSAGE",
+    "name": "Traditional Massage",
+    "options": [
+      { "durationMin": 60, "price": 549000 },
+      { "durationMin": 90, "price": 649000 }
+    ]
+  },
+  {
+    "category": "BODY MASSAGE",
+    "name": "Prenatal Massage",
+    "options": [
+      { "durationMin": 60, "price": 699000 },
+      { "durationMin": 90, "price": 799000 }
+    ]
+  },
+  {
+    "category": "BODY MASSAGE",
+    "name": "Hot Stone Relaxation",
+    "options": [
+      { "durationMin": 90, "price": 649000 },
+      { "durationMin": 120, "price": 749000 }
+    ]
+  },
+  {
+    "category": "BODY MASSAGE",
+    "name": "Deep Release Massage",
+    "options": [
+      { "durationMin": 90, "price": 649000 },
+      { "durationMin": 120, "price": 749000 }
+    ]
+  },
+  {
+    "category": "BODY MASSAGE",
+    "name": "Herbal Infusion Massage",
+    "options": [
+      { "durationMin": 90, "price": 699000 },
+      { "durationMin": 120, "price": 799000 }
+    ]
+  },
+
+  {
+    "category": "BODY SPA",
+    "name": "Javanese Ritual Spa",
+    "options": [{ "durationMin": 120, "price": 1199000 }]
+  },
+  {
+    "category": "BODY SPA",
+    "name": "Healing Touch Spa",
+    "options": [{ "durationMin": 120, "price": 888000 }]
+  },
+  {
+    "category": "BODY SPA",
+    "name": "Detox Warming Spa",
+    "options": [{ "durationMin": 120, "price": 1399000 }]
+  },
+  {
+    "category": "BODY SPA",
+    "name": "Aarti Classic Ritual (Single)",
+    "options": [{ "durationMin": 140, "price": 1799000 }]
+  },
+  {
+    "category": "BODY SPA",
+    "name": "Aarti Classic Ritual (Couple)",
+    "options": [{ "durationMin": 140, "price": 3499000 }]
+  },
+  {
+    "category": "BODY SPA",
+    "name": "Aarti Signature Spa (Single)",
+    "options": [{ "durationMin": 180, "price": 2499000 }]
+  },
+  {
+    "category": "BODY SPA",
+    "name": "Aarti Signature Spa (Couple)",
+    "options": [{ "durationMin": 180, "price": 4998000 }]
+  },
+
+  {
+    "category": "LYMPHATIC & TONING",
+    "name": "Body Toning Lymphatic Massage",
+    "options": [{ "durationMin": 90, "price": 1199000 }]
+  },
+  {
+    "category": "LYMPHATIC & TONING",
+    "name": "Toning & Detoxifying Ritual",
+    "options": [{ "durationMin": 120, "price": 1799000 }]
+  },
+  {
+    "category": "LYMPHATIC & TONING",
+    "name": "Toning Ritual",
+    "options": [{ "durationMin": 120, "price": 1599000 }]
+  },
+  {
+    "category": "LYMPHATIC & TONING",
+    "name": "Full Signature Ritual",
+    "options": [{ "durationMin": 165, "price": 2299000 }]
+  },
+
+  {
+    "category": "ADD-ONS BODY",
+    "name": "Face & Neck Lymphatic Drainage",
+    "options": [{ "durationMin": 30, "price": 599000 }]
+  },
+  {
+    "category": "ADD-ONS BODY",
+    "name": "Detox Warming Mask",
+    "options": [{ "durationMin": 30, "price": 349000 }]
+  },
+  {
+    "category": "ADD-ONS BODY",
+    "name": "Luxury Herbal Bath",
+    "options": [{ "durationMin": 30, "price": 399000 }]
+  },
+
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Detox Warming Mask (15/30)",
+    "options": [
+      { "durationMin": 30, "price": 349000 },
+      { "durationMin": 15, "price": 349000 }
+    ]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Nourishing Body Mask",
+    "options": [{ "durationMin": 30, "price": 349000 }]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Brightening Body Scrub",
+    "options": [{ "durationMin": 30, "price": 349000 }]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Deep Back Release",
+    "options": [{ "durationMin": 30, "price": 349000 }]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Head Massage",
+    "options": [{ "durationMin": 30, "price": 299000 }]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Hand & Foot Massage",
+    "options": [{ "durationMin": 30, "price": 299000 }]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Coin Therapy",
+    "options": [{ "durationMin": 30, "price": 299000 }]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Glow Point Acupressure",
+    "options": [{ "durationMin": 30, "price": 299000 }]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Refresh & Revive Eye Treatment",
+    "options": [{ "durationMin": 30, "price": 399000 }]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Vital Neck Infusion",
+    "options": [{ "durationMin": 30, "price": 399000 }]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Ratus Yoni Steam",
+    "options": [{ "durationMin": 15, "price": 299000 }]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Vspa",
+    "options": [{ "durationMin": 45, "price": 699000 }]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Deep Back Facial",
+    "options": [{ "durationMin": 60, "price": 1299000 }]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Luxury Milk Bath",
+    "options": [{ "durationMin": 15, "price": 399000 }]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Luxury Herbal Bath (15)",
+    "options": [{ "durationMin": 15, "price": 399000 }]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Luxury Lavender Sea Salt Bath",
+    "options": [{ "durationMin": 15, "price": 399000 }]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Energy Wave Body Contouring",
+    "options": [{ "durationMin": 60, "price": 1299000 }]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "V-Shape Facial Lift",
+    "options": [{ "durationMin": 30, "price": 599000 }]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Express Glow Facial Treatment",
+    "options": [{ "durationMin": 30, "price": 699000 }]
+  },
+  {
+    "category": "ADDITIONAL BODY SERVICES",
+    "name": "Instant Glow Facial Treatment",
+    "options": [{ "durationMin": 45, "price": 799000 }]
+  },
+
+  {
+    "category": "FACE (FACIALS)",
+    "name": "Calm & Refresh Facial Treatment",
+    "options": [{ "durationMin": 90, "price": 1199000 }]
+  },
+  {
+    "category": "FACE (FACIALS)",
+    "name": "Purifying Facial Treatment",
+    "options": [{ "durationMin": 120, "price": 1699000 }]
+  },
+  {
+    "category": "FACE (FACIALS)",
+    "name": "Glowfusion Facial Treatment",
+    "options": [{ "durationMin": 90, "price": 2199000 }]
+  },
+  {
+    "category": "FACE (FACIALS)",
+    "name": "Collagen Fusion Facial Treatment",
+    "options": [{ "durationMin": 90, "price": 2499000 }]
+  },
+
+  {
+    "category": "HAIR SPA",
+    "name": "Intensive Scalp Detox",
+    "options": [{ "durationMin": 90, "price": 799000 }]
+  },
+  {
+    "category": "HAIR SPA",
+    "name": "Scalp & Hair Rejuvenation",
+    "options": [{ "durationMin": 90, "price": 999000 }]
+  },
+  {
+    "category": "HAIR SPA",
+    "name": "Advance Hair Transformation",
+    "options": [{ "durationMin": 90, "price": 1499000 }]
+  },
+  {
+    "category": "HAIR SPA",
+    "name": "Revitalizing",
+    "options": [{ "durationMin": 90, "price": 999000 }]
+  },
+  {
+    "category": "HAIR SPA",
+    "name": "Volumizing",
+    "options": [{ "durationMin": 90, "price": 1299000 }]
+  },
+
+  {
+    "category": "HAIR ADD-ONS",
+    "name": "Wash & Dry",
+    "options": [{ "durationMin": 30, "price": 249000 }]
+  },
+  {
+    "category": "HAIR ADD-ONS",
+    "name": "Wash & Blow",
+    "options": [{ "durationMin": 45, "price": 349000 }]
+  },
+  {
+    "category": "HAIR ADD-ONS",
+    "name": "Scalp Detox (60)",
+    "options": [{ "durationMin": 60, "price": 449000 }]
+  },
+  {
+    "category": "HAIR ADD-ONS",
+    "name": "Hair Filler (60)",
+    "options": [{ "durationMin": 60, "price": 549000 }]
+  },
+
+  {
+    "category": "HAND, FOOT & NAIL - ESSENTIAL",
+    "name": "Essential Foot Silken Immersion",
+    "options": [{ "durationMin": 60, "price": 459000 }]
+  },
+  {
+    "category": "HAND, FOOT & NAIL - ESSENTIAL",
+    "name": "Essential Hand Silken Immersion",
+    "options": [{ "durationMin": 45, "price": 399000 }]
+  },
+  {
+    "category": "HAND, FOOT & NAIL - ESSENTIAL",
+    "name": "Essential Hand & Foot Ritual",
+    "options": [
+      { "durationMin": 60, "price": 749000 },
+      { "durationMin": 105, "price": 749000 }
+    ]
+  },
+
+  {
+    "category": "HAND, FOOT & NAIL - SIGNATURE",
+    "name": "Signature Foot Glow Revival",
+    "options": [{ "durationMin": 75, "price": 699000 }]
+  },
+  {
+    "category": "HAND, FOOT & NAIL - SIGNATURE",
+    "name": "Signature Hand Glow Revival",
+    "options": [{ "durationMin": 60, "price": 599000 }]
+  },
+  {
+    "category": "HAND, FOOT & NAIL - SIGNATURE",
+    "name": "Signature Hand & Foot Glow Revival",
+    "options": [
+      { "durationMin": 75, "price": 1099000 },
+      { "durationMin": 135, "price": 1099000 }
+    ]
+  },
+
+  {
+    "category": "NAIL TREATMENT",
+    "name": "Machine Manicure / Pedicure",
+    "options": [{ "durationMin": 45, "price": 199000 }]
+  },
+  {
+    "category": "NAIL TREATMENT",
+    "name": "Deep Clean Callus Pedicure",
+    "options": [{ "durationMin": 75, "price": 349000 }]
+  },
+  {
+    "category": "NAIL TREATMENT",
+    "name": "Spa Manicure",
+    "options": [{ "durationMin": 70, "price": 349000 }]
+  },
+  {
+    "category": "NAIL TREATMENT",
+    "name": "Spa Callus Pedicure",
+    "options": [{ "durationMin": 100, "price": 449000 }]
+  },
+
+  {
+    "category": "NAIL - ADDITIONAL & PACKAGE",
+    "name": "BIAB Gel Set",
+    "options": [{ "durationMin": 60, "price": 300000 }]
+  },
+  {
+    "category": "NAIL - ADDITIONAL & PACKAGE",
+    "name": "BIAB + Gel Color Set",
+    "options": [{ "durationMin": 75, "price": 350000 }]
+  },
+  {
+    "category": "NAIL - ADDITIONAL & PACKAGE",
+    "name": "BIAB + Gel Color + Special Effect",
+    "options": [{ "durationMin": 90, "price": 400000 }]
+  },
+  {
+    "category": "NAIL - ADDITIONAL & PACKAGE",
+    "name": "BIAB + Gel Design (Simple)",
+    "options": [{ "durationMin": 90, "price": 450000 }]
+  },
+  {
+    "category": "NAIL - ADDITIONAL & PACKAGE",
+    "name": "BIAB + Gel Design (Medium)",
+    "options": [{ "durationMin": 90, "price": 550000 }]
+  },
+  {
+    "category": "NAIL - ADDITIONAL & PACKAGE",
+    "name": "Basic Gel Color Set",
+    "options": [{ "durationMin": 30, "price": 200000 }]
+  },
+  {
+    "category": "NAIL - ADDITIONAL & PACKAGE",
+    "name": "Basic Gel Color + Special Effect",
+    "options": [{ "durationMin": 60, "price": 300000 }]
+  },
+  {
+    "category": "NAIL - ADDITIONAL & PACKAGE",
+    "name": "Basic Gel Design (Simple)",
+    "options": [{ "durationMin": 60, "price": 350000 }]
+  },
+  {
+    "category": "NAIL - ADDITIONAL & PACKAGE",
+    "name": "Basic Gel Design (Medium)",
+    "options": [{ "durationMin": 60, "price": 450000 }]
+  },
+  {
+    "category": "NAIL - ADDITIONAL & PACKAGE",
+    "name": "Gel Removal (per nail)",
+    "options": [{ "durationMin": 10, "price": 15000 }]
+  },
+  {
+    "category": "NAIL - ADDITIONAL & PACKAGE",
+    "name": "Gel Removal (10 nails)",
+    "options": [{ "durationMin": 20, "price": 100000 }]
+  },
+
+  {
+    "category": "PACKAGES",
+    "name": "Manicure Pedicure BIAB (135 / 210)",
+    "options": [
+      { "durationMin": 135, "price": 899000 },
+      { "durationMin": 210, "price": 899000 }
+    ]
+  },
+  {
+    "category": "PACKAGES",
+    "name": "Spa Manicure Pedicure BIAB (150 / 290)",
+    "options": [
+      { "durationMin": 150, "price": 1099000 },
+      { "durationMin": 290, "price": 1099000 }
+    ]
+  }
+]

@@ -4,12 +4,12 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 const SummaryReport = ({ data }) => {
-  // Hitung total nominal dari semua transaksi
+  // 🧮 Hitung total nominal dari semua transaksi
   const calculateTotal = (key) => {
     return data.reduce((sum, item) => sum + (Number(item[key]) || 0), 0);
   };
 
-  // Hitung pendapatan per terapis
+  // 🧮 Hitung pendapatan per terapis
   const calculatePerTerapis = () => {
     const report = {};
     data.forEach(item => {
@@ -72,7 +72,7 @@ const SummaryReport = ({ data }) => {
 
   return (
     <>
-      {/* Card Total Pendapatan - Aesthetic Update */}
+      {/* 💰 Card Total Pendapatan */}
       <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 flex flex-col justify-between">
         <h2 className="text-xl font-semibold mb-2 text-gray-700">Total Pendapatan</h2>
         <p className="text-4xl font-extrabold mb-1 text-indigo-600">
@@ -89,33 +89,49 @@ const SummaryReport = ({ data }) => {
         </button>
       </div>
 
-      {/* Tabel Pendapatan per Terapis - Aesthetic Update */}
+      {/* 🧾 Tabel Pendapatan per Terapis */}
       <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 lg:col-span-2">
         <h2 className="text-xl font-semibold mb-4 text-gray-700">Pendapatan per Terapis</h2>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-indigo-50 text-indigo-800">
-                <th className="p-3 text-left text-sm font-semibold border-b border-indigo-200 rounded-tl-xl">Terapis</th>
-                <th className="p-3 text-left text-sm font-semibold border-b border-indigo-200">Total Nominal</th>
-                <th className="p-3 text-left text-sm font-semibold border-b border-indigo-200 rounded-tr-xl">Komisi (2%)</th>
+                <th className="p-3 text-left text-sm font-semibold border-b border-indigo-200 rounded-tl-xl">
+                  Terapis
+                </th>
+                <th className="p-3 text-left text-sm font-semibold border-b border-indigo-200">
+                  Total Nominal
+                </th>
+                <th className="p-3 text-left text-sm font-semibold border-b border-indigo-200 rounded-tr-xl">
+                  Komisi (2%)
+                </th>
               </tr>
             </thead>
             <tbody>
-              {Object.keys(perTerapisData).map((terapis, index) => (
-                <tr 
-                  key={terapis} 
-                  className={`transition-colors text-gray-700 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-indigo-100`}
-                >
-                  <td className="p-3 border-b border-gray-200 font-medium">{terapis}</td>
-                  <td className="p-3 border-b border-gray-200">
-                    Rp {perTerapisData[terapis].totalNominal.toLocaleString('id-ID')}
-                  </td>
-                  <td className="p-3 border-b border-gray-200">
-                    Rp {(perTerapisData[terapis].totalNominal * 0.02).toLocaleString('id-ID')}
+              {Object.keys(perTerapisData).length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="text-center p-4 text-gray-500 italic">
+                    Belum ada data
                   </td>
                 </tr>
-              ))}
+              ) : (
+                Object.keys(perTerapisData).map((terapis, index) => (
+                  <tr
+                    key={terapis}
+                    className={`transition-colors text-gray-700 ${
+                      index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                    } hover:bg-indigo-100`}
+                  >
+                    <td className="p-3 border-b border-gray-200 font-medium">{terapis}</td>
+                    <td className="p-3 border-b border-gray-200">
+                      Rp {perTerapisData[terapis].totalNominal.toLocaleString('id-ID')}
+                    </td>
+                    <td className="p-3 border-b border-gray-200">
+                      Rp {(perTerapisData[terapis].totalNominal * 0.02).toLocaleString('id-ID')}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
