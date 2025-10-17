@@ -9,7 +9,7 @@ const buildFlatMenu = (menu) =>
       name: m.name,
       durationMin: opt.durationMin,
       price: opt.price,
-      optionIndex: idx
+      optionIndex: idx,
     }))
   );
 
@@ -30,7 +30,17 @@ const SpreadsheetTable = ({ data, onSave }) => {
   });
   const [editIndex, setEditIndex] = useState(null);
 
-  useEffect(() => setTableData(data || []), [data]);
+  // Saat data berubah, langsung sort dari tanggal terkecil → terbesar
+  useEffect(() => {
+    if (data) {
+      const sorted = [...data].sort(
+        (a, b) => new Date(a.tanggal) - new Date(b.tanggal)
+      );
+      setTableData(sorted);
+    } else {
+      setTableData([]);
+    }
+  }, [data]);
 
   const flatMenu = useMemo(() => buildFlatMenu(menuData), []);
 
@@ -41,7 +51,11 @@ const SpreadsheetTable = ({ data, onSave }) => {
     }
     const q = query.toLowerCase();
     const matches = flatMenu
-      .filter((it) => it.name.toLowerCase().includes(q) || it.category.toLowerCase().includes(q))
+      .filter(
+        (it) =>
+          it.name.toLowerCase().includes(q) ||
+          it.category.toLowerCase().includes(q)
+      )
       .slice(0, 10);
     setSuggestions(matches);
   }, [query, flatMenu]);
@@ -50,17 +64,22 @@ const SpreadsheetTable = ({ data, onSave }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "nominal" ? (value === "" ? "" : Number(value)) : value
+      [name]:
+        name === "nominal" ? (value === "" ? "" : Number(value)) : value,
     }));
   };
 
   const pickSuggestion = (sug) => {
-    const optionsForName = menuData.find((m) => m.name === sug.name)?.options || [];
+    const optionsForName =
+      menuData.find((m) => m.name === sug.name)?.options || [];
     setFormData((prev) => ({
       ...prev,
       jenisTreatment: sug.name,
-      durasi: optionsForName.length === 1 ? String(optionsForName[0].durationMin) : String(sug.durationMin),
-      nominal: sug.price
+      durasi:
+        optionsForName.length === 1
+          ? String(optionsForName[0].durationMin)
+          : String(sug.durationMin),
+      nominal: sug.price,
     }));
     setQuery("");
     setSuggestions([]);
@@ -72,7 +91,9 @@ const SpreadsheetTable = ({ data, onSave }) => {
       const menuItem = menuData.find((m) => m.name === prev.jenisTreatment);
       let price = prev.nominal || "";
       if (menuItem) {
-        const opt = menuItem.options.find((o) => String(o.durationMin) === String(dur));
+        const opt = menuItem.options.find(
+          (o) => String(o.durationMin) === String(dur)
+        );
         if (opt) price = opt.price;
       }
       return { ...prev, durasi: dur, nominal: price };
@@ -80,10 +101,16 @@ const SpreadsheetTable = ({ data, onSave }) => {
   };
 
   const handleAddOrUpdate = () => {
-    if (!formData.tanggal || !formData.terapis || !formData.shift || !formData.nominal) {
+    if (
+      !formData.tanggal ||
+      !formData.terapis ||
+      !formData.shift ||
+      !formData.nominal
+    ) {
       alert("Tanggal, Terapis, Shift, dan Nominal wajib diisi!");
       return;
     }
+
     let newTable;
     if (editIndex !== null) {
       newTable = [...tableData];
@@ -92,8 +119,13 @@ const SpreadsheetTable = ({ data, onSave }) => {
     } else {
       newTable = [...tableData, { ...formData }];
     }
+
+    // 🔥 Urutkan berdasarkan tanggal
+    newTable.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+
     setTableData(newTable);
     onSave?.(newTable);
+
     setFormData({
       tanggal: "",
       terapis: "",
@@ -103,7 +135,7 @@ const SpreadsheetTable = ({ data, onSave }) => {
       namaTamu: "",
       ruang: "",
       report: "",
-      nominal: ""
+      nominal: "",
     });
   };
 
@@ -115,37 +147,70 @@ const SpreadsheetTable = ({ data, onSave }) => {
 
   const handleDelete = (i) => {
     const updated = tableData.filter((_, idx) => idx !== i);
+    // 🔥 setelah delete, sort juga biar rapi
+    updated.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
     setTableData(updated);
     onSave?.(updated);
   };
 
-  const totalNominal = tableData.reduce((s, r) => s + (Number(r.nominal) || 0), 0);
-  const dates = tableData.map((r) => r.tanggal ? new Date(r.tanggal) : null).filter(Boolean);
-  const minDate = dates.length ? new Date(Math.min(...dates)).toLocaleDateString("id-ID") : "-";
-  const maxDate = dates.length ? new Date(Math.max(...dates)).toLocaleDateString("id-ID") : "-";
+  const totalNominal = tableData.reduce(
+    (s, r) => s + (Number(r.nominal) || 0),
+    0
+  );
+  const dates = tableData
+    .map((r) => (r.tanggal ? new Date(r.tanggal) : null))
+    .filter(Boolean);
+  const minDate = dates.length
+    ? new Date(Math.min(...dates)).toLocaleDateString("id-ID")
+    : "-";
+  const maxDate = dates.length
+    ? new Date(Math.max(...dates)).toLocaleDateString("id-ID")
+    : "-";
 
   const optionsForSelected = formData.jenisTreatment
-    ? (menuData.find((m) => m.name === formData.jenisTreatment)?.options || [])
+    ? menuData.find((m) => m.name === formData.jenisTreatment)?.options || []
     : [];
 
   return (
     <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-200 space-y-8">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Input Data Transaksi</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">
+        Input Data Transaksi
+      </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <input name="tanggal" type="date" value={formData.tanggal} onChange={handleChange}
-          className="p-3 border rounded-lg" />
-        <input name="terapis" placeholder="Terapis *" value={formData.terapis} onChange={handleChange}
-          className="p-3 border rounded-lg" />
-        <select name="shift" value={formData.shift} onChange={handleChange} className="p-3 border rounded-lg">
+        <input
+          name="tanggal"
+          type="date"
+          value={formData.tanggal}
+          onChange={handleChange}
+          className="p-3 border rounded-lg"
+        />
+        <input
+          name="terapis"
+          placeholder="Terapis *"
+          value={formData.terapis}
+          onChange={handleChange}
+          className="p-3 border rounded-lg"
+        />
+        <select
+          name="shift"
+          value={formData.shift}
+          onChange={handleChange}
+          className="p-3 border rounded-lg"
+        >
           <option value="">Shift</option>
           <option value="A1">A1</option>
           <option value="Md">Md</option>
           <option value="B1">B1</option>
         </select>
 
-        <input name="namaTamu" placeholder="Nama Tamu" value={formData.namaTamu} onChange={handleChange}
-          className="p-3 border rounded-lg" />
+        <input
+          name="namaTamu"
+          placeholder="Nama Tamu"
+          value={formData.namaTamu}
+          onChange={handleChange}
+          className="p-3 border rounded-lg"
+        />
       </div>
 
       {/* treatment autocomplete + durasi + nominal + ruang */}
@@ -156,15 +221,28 @@ const SpreadsheetTable = ({ data, onSave }) => {
             type="text"
             placeholder="Jenis Treatment"
             value={formData.jenisTreatment || query}
-            onChange={(e) => { setQuery(e.target.value); setFormData(prev => ({ ...prev, jenisTreatment: e.target.value })); }}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setFormData((prev) => ({
+                ...prev,
+                jenisTreatment: e.target.value,
+              }));
+            }}
             className="w-full p-3 border rounded-lg"
           />
           {suggestions.length > 0 && (
             <div className="absolute z-30 mt-1 bg-white border rounded-lg w-full shadow">
               {suggestions.map((s, i) => (
-                <div key={i} className="p-2 hover:bg-gray-100 cursor-pointer" onClick={() => pickSuggestion(s)}>
+                <div
+                  key={i}
+                  className="p-2 hover:bg-gray-100 cursor-pointer"
+                  onClick={() => pickSuggestion(s)}
+                >
                   <div className="text-sm font-medium">{s.name}</div>
-                  <div className="text-xs text-gray-500">{s.durationMin} min — Rp {s.price.toLocaleString("id-ID")}</div>
+                  <div className="text-xs text-gray-500">
+                    {s.durationMin} min — Rp{" "}
+                    {s.price.toLocaleString("id-ID")}
+                  </div>
                 </div>
               ))}
             </div>
@@ -172,8 +250,17 @@ const SpreadsheetTable = ({ data, onSave }) => {
         </div>
 
         {/* Durasi */}
-        <select name="durasi" value={formData.durasi} onChange={handleDurasiChange} className="p-3 border rounded-lg">
-          <option value="">{optionsForSelected.length ? "Pilih Durasi" : "Pilih treatment dahulu"}</option>
+        <select
+          name="durasi"
+          value={formData.durasi}
+          onChange={handleDurasiChange}
+          className="p-3 border rounded-lg"
+        >
+          <option value="">
+            {optionsForSelected.length
+              ? "Pilih Durasi"
+              : "Pilih treatment dahulu"}
+          </option>
           {optionsForSelected.map((opt, idx) => (
             <option key={idx} value={opt.durationMin}>
               {opt.durationMin} min
@@ -206,19 +293,39 @@ const SpreadsheetTable = ({ data, onSave }) => {
         </select>
 
         {/* Nominal */}
-        <input name="nominal" type="number" placeholder="Nominal (Rp)" value={formData.nominal || ""}
-          onChange={handleChange} className="p-3 border rounded-lg" />
+        <input
+          name="nominal"
+          type="number"
+          placeholder="Nominal (Rp)"
+          value={formData.nominal || ""}
+          onChange={handleChange}
+          className="p-3 border rounded-lg"
+        />
 
-        <input name="report" placeholder="Report (opsional)" value={formData.report} onChange={handleChange}
-          className="p-3 border rounded-lg" />
+        <input
+          name="report"
+          placeholder="Report (opsional)"
+          value={formData.report}
+          onChange={handleChange}
+          className="p-3 border rounded-lg"
+        />
       </div>
 
       {/* Tombol simpan */}
       <div className="flex gap-3">
-        <button onClick={handleAddOrUpdate} className={`px-6 py-2 rounded-xl font-semibold shadow-md ${editIndex !== null ? "bg-green-500 text-white" : "bg-indigo-600 text-white"}`}>
+        <button
+          onClick={handleAddOrUpdate}
+          className={`px-6 py-2 rounded-xl font-semibold shadow-md ${
+            editIndex !== null
+              ? "bg-green-500 text-white"
+              : "bg-indigo-600 text-white"
+          }`}
+        >
           {editIndex !== null ? "✅ Update Data" : "➕ Tambah Data"}
         </button>
-        <div className="self-center text-sm text-gray-500">Saran treatment dari menu resmi.</div>
+        <div className="self-center text-sm text-gray-500">
+          Saran treatment dari menu resmi.
+        </div>
       </div>
 
       {/* Tabel utama */}
@@ -226,29 +333,70 @@ const SpreadsheetTable = ({ data, onSave }) => {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              {["Tanggal", "Terapis", "Shift", "JenisTreatment", "Durasi", "NamaTamu", "Ruang", "Nominal", "Report", "Aksi"].map((h) => (
-                <th key={h} className="p-3 text-left text-xs font-semibold text-gray-600">{h}</th>
+              {[
+                "Tanggal",
+                "Terapis",
+                "Shift",
+                "JenisTreatment",
+                "Durasi",
+                "NamaTamu",
+                "Ruang",
+                "Nominal",
+                "Report",
+                "Aksi",
+              ].map((h) => (
+                <th
+                  key={h}
+                  className="p-3 text-left text-xs font-semibold text-gray-600"
+                >
+                  {h}
+                </th>
               ))}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {tableData.length === 0 ? (
-              <tr><td colSpan={10} className="text-center p-6 text-gray-500 italic">Belum ada data</td></tr>
+              <tr>
+                <td
+                  colSpan={10}
+                  className="text-center p-6 text-gray-500 italic"
+                >
+                  Belum ada data
+                </td>
+              </tr>
             ) : (
               tableData.map((r, i) => (
                 <tr key={i} className="hover:bg-indigo-50">
-                  <td className="p-3 text-sm">{r.tanggal ? new Date(r.tanggal).toLocaleDateString("id-ID") : ""}</td>
+                  <td className="p-3 text-sm">
+                    {r.tanggal
+                      ? new Date(r.tanggal).toLocaleDateString("id-ID")
+                      : ""}
+                  </td>
                   <td className="p-3 text-sm font-medium">{r.terapis}</td>
                   <td className="p-3 text-sm">{r.shift}</td>
                   <td className="p-3 text-sm">{r.jenisTreatment}</td>
-                  <td className="p-3 text-sm">{r.durasi ? `${r.durasi} min` : ""}</td>
+                  <td className="p-3 text-sm">
+                    {r.durasi ? `${r.durasi} min` : ""}
+                  </td>
                   <td className="p-3 text-sm">{r.namaTamu}</td>
                   <td className="p-3 text-sm">{r.ruang}</td>
-                  <td className="p-3 text-sm text-indigo-600 font-semibold">Rp {Number(r.nominal || 0).toLocaleString("id-ID")}</td>
+                  <td className="p-3 text-sm text-indigo-600 font-semibold">
+                    Rp {Number(r.nominal || 0).toLocaleString("id-ID")}
+                  </td>
                   <td className="p-3 text-sm">{r.report}</td>
                   <td className="p-3">
-                    <button onClick={() => handleEdit(i)} className="px-3 py-1 bg-yellow-400 text-white rounded-lg text-xs mr-2">✏️</button>
-                    <button onClick={() => handleDelete(i)} className="px-3 py-1 bg-red-500 text-white rounded-lg text-xs">🗑️</button>
+                    <button
+                      onClick={() => handleEdit(i)}
+                      className="px-3 py-1 bg-yellow-400 text-white rounded-lg text-xs mr-2"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      onClick={() => handleDelete(i)}
+                      className="px-3 py-1 bg-red-500 text-white rounded-lg text-xs"
+                    >
+                      🗑️
+                    </button>
                   </td>
                 </tr>
               ))
@@ -256,8 +404,15 @@ const SpreadsheetTable = ({ data, onSave }) => {
           </tbody>
           <tfoot className="bg-gray-100">
             <tr>
-              <td colSpan={7} className="px-4 py-3 font-bold text-right text-gray-700">Total Nominal Periode ({minDate} s/d {maxDate}):</td>
-              <td className="px-4 py-3 text-sm font-extrabold text-indigo-600">Rp {totalNominal.toLocaleString("id-ID")}</td>
+              <td
+                colSpan={7}
+                className="px-4 py-3 font-bold text-right text-gray-700"
+              >
+                Total Nominal Periode ({minDate} s/d {maxDate}):
+              </td>
+              <td className="px-4 py-3 text-sm font-extrabold text-indigo-600">
+                Rp {totalNominal.toLocaleString("id-ID")}
+              </td>
               <td colSpan={2}></td>
             </tr>
           </tfoot>
@@ -266,41 +421,70 @@ const SpreadsheetTable = ({ data, onSave }) => {
 
       {/* Rekap Bulanan */}
       <div>
-        <h2 className="text-xl font-bold mb-3 text-gray-800">📊 Pendapatan Per Bulan & Terapis</h2>
+        <h2 className="text-xl font-bold mb-3 text-gray-800">
+          📊 Pendapatan Per Bulan & Terapis
+        </h2>
         <div className="overflow-x-auto border border-gray-200 rounded-xl">
           <table className="w-full border-collapse">
             <thead className="bg-gray-50">
               <tr>
-                <th className="p-3 border-b text-left text-xs font-semibold text-gray-600">Bulan</th>
-                <th className="p-3 border-b text-left text-xs font-semibold text-gray-600">Terapis</th>
-                <th className="p-3 border-b text-left text-xs font-semibold text-gray-600">Total Nominal</th>
-                <th className="p-3 border-b text-left text-xs font-semibold text-gray-600">Komisi (2%)</th>
+                <th className="p-3 border-b text-left text-xs font-semibold text-gray-600">
+                  Bulan
+                </th>
+                <th className="p-3 border-b text-left text-xs font-semibold text-gray-600">
+                  Terapis
+                </th>
+                <th className="p-3 border-b text-left text-xs font-semibold text-gray-600">
+                  Total Nominal
+                </th>
+                <th className="p-3 border-b text-left text-xs font-semibold text-gray-600">
+                  Komisi (2%)
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {tableData.length === 0 ? (
-                <tr><td colSpan={4} className="text-center p-4 text-gray-500 italic">Belum ada data bulanan</td></tr>
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="text-center p-4 text-gray-500 italic"
+                  >
+                    Belum ada data bulanan
+                  </td>
+                </tr>
               ) : (() => {
-                const monthly = tableData.reduce((acc, row) => {
-                  if (!row.tanggal || !row.terapis) return acc;
-                  const d = new Date(row.tanggal);
-                  const monthKey = `${d.toLocaleString("id-ID",{month:"long"})} ${d.getFullYear()}`;
-                  acc[monthKey] = acc[monthKey] || {};
-                  acc[monthKey][row.terapis] = acc[monthKey][row.terapis] || { nominal: 0 };
-                  acc[monthKey][row.terapis].nominal += Number(row.nominal) || 0;
-                  return acc;
-                }, {});
-                return Object.entries(monthly).flatMap(([month, therapists]) =>
-                  Object.entries(therapists).map(([therapist, val]) => (
-                    <tr key={`${month}-${therapist}`} className="hover:bg-indigo-50">
-                      <td className="p-3 text-sm font-medium">{month}</td>
-                      <td className="p-3 text-sm">{therapist}</td>
-                      <td className="p-3 text-sm text-indigo-600 font-semibold">Rp {val.nominal.toLocaleString("id-ID")}</td>
-                      <td className="p-3 text-sm text-green-600 font-semibold">Rp {(val.nominal*0.02).toLocaleString("id-ID")}</td>
-                    </tr>
-                  ))
-                );
-              })()}
+                  const monthly = tableData.reduce((acc, row) => {
+                    if (!row.tanggal || !row.terapis) return acc;
+                    const d = new Date(row.tanggal);
+                    const monthKey = `${d.toLocaleString("id-ID", {
+                      month: "long",
+                    })} ${d.getFullYear()}`;
+                    acc[monthKey] = acc[monthKey] || {};
+                    acc[monthKey][row.terapis] =
+                      acc[monthKey][row.terapis] || { nominal: 0 };
+                    acc[monthKey][row.terapis].nominal +=
+                      Number(row.nominal) || 0;
+                    return acc;
+                  }, {});
+                  return Object.entries(monthly).flatMap(
+                    ([month, therapists]) =>
+                      Object.entries(therapists).map(([therapist, val]) => (
+                        <tr
+                          key={`${month}-${therapist}`}
+                          className="hover:bg-indigo-50"
+                        >
+                          <td className="p-3 text-sm font-medium">{month}</td>
+                          <td className="p-3 text-sm">{therapist}</td>
+                          <td className="p-3 text-sm text-indigo-600 font-semibold">
+                            Rp {val.nominal.toLocaleString("id-ID")}
+                          </td>
+                          <td className="p-3 text-sm text-green-600 font-semibold">
+                            Rp {(val.nominal * 0.02).toLocaleString("id-ID")}
+                          </td>
+                        </tr>
+                      ))
+                  );
+                })()}
             </tbody>
           </table>
         </div>

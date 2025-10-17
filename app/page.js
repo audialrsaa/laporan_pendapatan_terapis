@@ -27,11 +27,17 @@ export default function Home() {
         <title>Sistem Laporan Pendapatan Terapis</title>
       </Head>
 
-      <h1 className="text-4xl font-extrabold mb-10 text-center text-gray-800">
+      <h1 className="text-4xl font-extrabold mb-2 text-center text-gray-800">
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">
           Sistem Laporan Pendapatan Terapis
         </span>
       </h1>
+
+      <h2 className="text-4xl font-extrabold mb-5 text-center text-gray-800">
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">
+          Adhe
+        </span>
+      </h2>
 
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
