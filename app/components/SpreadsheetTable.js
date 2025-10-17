@@ -2,14 +2,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import menuData from "../data/menu.json";
 
-/**
- * SpreadsheetTable
- * - Autocomplete jenis treatment (dari menuData)
- * - Jika treatment punya beberapa opsi durasi -> tampilkan pilihan durasi
- * - Saat pilih treatment/opsi otomatis isi nominal
- * - Shift dropdown: A1 / Md / B1 (manual)
- */
-
 const buildFlatMenu = (menu) =>
   menu.flatMap((m) =>
     m.options.map((opt, idx) => ({
@@ -63,7 +55,6 @@ const SpreadsheetTable = ({ data, onSave }) => {
   };
 
   const pickSuggestion = (sug) => {
-    // When suggestion picked: set jenisTreatment and set durasi+nominal if unique
     const optionsForName = menuData.find((m) => m.name === sug.name)?.options || [];
     setFormData((prev) => ({
       ...prev,
@@ -78,7 +69,6 @@ const SpreadsheetTable = ({ data, onSave }) => {
   const handleDurasiChange = (e) => {
     const dur = e.target.value;
     setFormData((prev) => {
-      // find price for this treatment + duration
       const menuItem = menuData.find((m) => m.name === prev.jenisTreatment);
       let price = prev.nominal || "";
       if (menuItem) {
@@ -148,7 +138,7 @@ const SpreadsheetTable = ({ data, onSave }) => {
         <input name="terapis" placeholder="Terapis *" value={formData.terapis} onChange={handleChange}
           className="p-3 border rounded-lg" />
         <select name="shift" value={formData.shift} onChange={handleChange} className="p-3 border rounded-lg">
-          <option value="">Pilih Shift</option>
+          <option value="">Shift</option>
           <option value="A1">A1</option>
           <option value="Md">Md</option>
           <option value="B1">B1</option>
@@ -158,8 +148,9 @@ const SpreadsheetTable = ({ data, onSave }) => {
           className="p-3 border rounded-lg" />
       </div>
 
-      {/* treatment autocomplete + durasi + nominal */}
+      {/* treatment autocomplete + durasi + nominal + ruang */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Autocomplete Treatment */}
         <div className="relative col-span-2">
           <input
             type="text"
@@ -180,8 +171,9 @@ const SpreadsheetTable = ({ data, onSave }) => {
           )}
         </div>
 
+        {/* Durasi */}
         <select name="durasi" value={formData.durasi} onChange={handleDurasiChange} className="p-3 border rounded-lg">
-          <option value="">{optionsForSelected.length ? "Pilih Durasi" : "Pilih treatment dulu"}</option>
+          <option value="">{optionsForSelected.length ? "Pilih Durasi" : "Pilih treatment dahulu"}</option>
           {optionsForSelected.map((opt, idx) => (
             <option key={idx} value={opt.durationMin}>
               {opt.durationMin} min
@@ -189,9 +181,31 @@ const SpreadsheetTable = ({ data, onSave }) => {
           ))}
         </select>
 
-        <input name="ruang" placeholder="Ruang" value={formData.ruang} onChange={handleChange}
-          className="p-3 border rounded-lg" />
+        {/* Ruang */}
+        <select
+          name="ruang"
+          value={formData.ruang}
+          onChange={handleChange}
+          className="p-3 border rounded-lg"
+        >
+          <option value="">Ruang</option>
+          <option value="Facial 1">Facial 1</option>
+          <option value="Facial 2">Facial 2</option>
+          <option value="Spa 1">Spa 1</option>
+          <option value="Spa 2">Spa 2</option>
+          <option value="Spa 3">Spa 3</option>
+          <option value="Massage 1">Massage 1</option>
+          <option value="Massage 2">Massage 2</option>
+          <option value="Massage 3">Massage 3</option>
+          <option value="Massage 4">Massage 4</option>
+          <option value="Single">Single</option>
+          <option value="Couple">Couple</option>
+          <option value="Hair spa">Hair spa</option>
+          <option value="Hair stayling">Hair stayling</option>
+          <option value="Nails">Nails</option>
+        </select>
 
+        {/* Nominal */}
         <input name="nominal" type="number" placeholder="Nominal (Rp)" value={formData.nominal || ""}
           onChange={handleChange} className="p-3 border rounded-lg" />
 
@@ -199,6 +213,7 @@ const SpreadsheetTable = ({ data, onSave }) => {
           className="p-3 border rounded-lg" />
       </div>
 
+      {/* Tombol simpan */}
       <div className="flex gap-3">
         <button onClick={handleAddOrUpdate} className={`px-6 py-2 rounded-xl font-semibold shadow-md ${editIndex !== null ? "bg-green-500 text-white" : "bg-indigo-600 text-white"}`}>
           {editIndex !== null ? "✅ Update Data" : "➕ Tambah Data"}
@@ -206,7 +221,7 @@ const SpreadsheetTable = ({ data, onSave }) => {
         <div className="self-center text-sm text-gray-500">Saran treatment dari menu resmi.</div>
       </div>
 
-      {/* table */}
+      {/* Tabel utama */}
       <div className="overflow-x-auto border border-gray-200 rounded-xl">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -249,7 +264,7 @@ const SpreadsheetTable = ({ data, onSave }) => {
         </table>
       </div>
 
-      {/* monthly summary computed inline */}
+      {/* Rekap Bulanan */}
       <div>
         <h2 className="text-xl font-bold mb-3 text-gray-800">📊 Pendapatan Per Bulan & Terapis</h2>
         <div className="overflow-x-auto border border-gray-200 rounded-xl">

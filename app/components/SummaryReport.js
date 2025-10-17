@@ -4,12 +4,12 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 const SummaryReport = ({ data }) => {
-  // 🧮 Hitung total nominal dari semua transaksi
+  // hitung total nominal dari semua transaksi
   const calculateTotal = (key) => {
     return data.reduce((sum, item) => sum + (Number(item[key]) || 0), 0);
   };
 
-  // 🧮 Hitung pendapatan per terapis
+  // hitung pendapatan per terapis
   const calculatePerTerapis = () => {
     const report = {};
     data.forEach(item => {
@@ -26,7 +26,7 @@ const SummaryReport = ({ data }) => {
   const totalKomisi = totalNominal * 0.02;
   const perTerapisData = calculatePerTerapis();
 
-  // 📝 Export ke PDF
+  // export ke PDF
   const handleExportPDF = () => {
     const doc = new jsPDF();
 
@@ -72,7 +72,7 @@ const SummaryReport = ({ data }) => {
 
   return (
     <>
-      {/* 💰 Card Total Pendapatan */}
+      {/* Card Total Pendapatan */}
       <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 flex flex-col justify-between">
         <h2 className="text-xl font-semibold mb-2 text-gray-700">Total Pendapatan</h2>
         <p className="text-4xl font-extrabold mb-1 text-indigo-600">
