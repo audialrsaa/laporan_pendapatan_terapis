@@ -2,6 +2,55 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import menuData from "../data/menu.json";
 
+// Ikon SVG
+const Icons = {
+  Add: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+    </svg>
+  ),
+  Edit: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+    </svg>
+  ),
+  Delete: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+    </svg>
+  ),
+  Check: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+    </svg>
+  ),
+  Trash: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+    </svg>
+  ),
+  Money: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  ),
+  Table: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+    </svg>
+  ),
+  Form: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+  ),
+  EmptyData: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+  )
+};
+
 const buildFlatMenu = (menu) =>
   menu.flatMap((m) =>
     m.options.map((opt, idx) => ({
@@ -31,7 +80,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
   });
   const [editIndex, setEditIndex] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
-  const initialLoadRef = useRef(false); // Tambah ref untuk tracking initial load
+  const initialLoadRef = useRef(false);
 
   // Hitung komisi otomatis dari nominal
   const calculateKomisi = (nominal) => {
@@ -62,17 +111,17 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
     }
     setIsInitialized(true);
     initialLoadRef.current = true;
-  }, []); // Hanya dijalankan sekali saat mount
+  }, []);
 
   // Simpan data ke localStorage setiap kali tableData berubah
   useEffect(() => {
     if (!isInitialized) return;
 
     localStorage.setItem("tableData", JSON.stringify(tableData));
-    onSave?.(tableData); // Notify parent component
+    onSave?.(tableData);
   }, [tableData, isInitialized, onSave]);
 
-  // Sync dengan data dari parent jika ada (hanya untuk initial data)
+  // Sync dengan data dari parent jika ada
   useEffect(() => {
     if (!isInitialized) return;
     if (!data || data.length === 0) return;
@@ -89,7 +138,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
 
     setTableData(sorted);
     localStorage.setItem("tableData", JSON.stringify(sorted));
-  }, [data, isInitialized]); // Hapus tableData.length dari dependencies
+  }, [data, isInitialized]);
 
   const flatMenu = useMemo(() => buildFlatMenu(menuData), []);
 
@@ -117,7 +166,6 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
         name === "nominal" ? (value === "" ? "" : Number(value)) : value,
     };
     
-    // Hitung komisi otomatis saat nominal berubah
     if (name === "nominal") {
       newFormData.komisi = calculateKomisi(value);
     }
@@ -206,9 +254,6 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
     newTable.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
 
     setTableData(newTable);
-    // Tidak perlu panggil onSave di sini karena useEffect sudah menanganinya
-    // Tidak perlu localStorage.setItem di sini karena useEffect sudah menanganinya
-
     setFormData({
       tanggal: "",
       terapis: "",
@@ -233,78 +278,6 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
     const updated = tableData.filter((_, idx) => idx !== i);
     updated.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
     setTableData(updated);
-    // Tidak perlu panggil onSave di sini karena useEffect sudah menanganinya
-    // Tidak perlu localStorage.setItem di sini karena useEffect sudah menanganinya
-  };
-
-  const handleExportTableData = () => {
-    if (tableData.length === 0) {
-      alert("Tidak ada data untuk di-export.");
-      return;
-    }
-    
-    const dataStr = JSON.stringify(tableData, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    const exportFileDefaultName = 'data_transaksi.json';
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-  };
-
-  const handleImportTableData = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    
-    input.onchange = (e) => {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      
-      reader.onload = (event) => {
-        try {
-          const importedData = JSON.parse(event.target.result);
-          
-          if (!Array.isArray(importedData)) {
-            alert("Format file tidak valid. Harus berupa array.");
-            return;
-          }
-          
-          const importedDataWithKomisi = importedData.map(item => ({
-            ...item,
-            komisi: item.komisi || calculateKomisi(item.nominal)
-          }));
-          
-          const combinedData = [...tableData, ...importedDataWithKomisi];
-          const uniqueData = Array.from(
-            new Map(
-              combinedData.map(item => [
-                `${item.tanggal}-${item.terapis}-${item.nominal}`,
-                item
-              ])
-            ).values()
-          );
-          
-          const sortedData = uniqueData.sort(
-            (a, b) => new Date(a.tanggal) - new Date(b.tanggal)
-          );
-          
-          setTableData(sortedData);
-          // Tidak perlu panggil onSave atau localStorage.setItem di sini
-          // karena useEffect sudah menanganinya
-          
-          alert(`✅ ${importedData.length} data berhasil diimpor!`);
-        } catch (err) {
-          alert("Gagal membaca file. Pastikan file JSON valid.");
-          console.error(err);
-        }
-      };
-      
-      reader.readAsText(file);
-    };
-    
-    input.click();
   };
 
   const totalNominal = tableData.reduce(
@@ -332,12 +305,15 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
     : [];
 
   return (
-    <div className="bg-gradient-to-b from-white to-gray-50 p-6 rounded-2xl shadow-2xl border border-gray-200 space-y-8">
+    <div className="bg-gradient-to-b from-white to-blue-50 p-6 rounded-2xl shadow-2xl border border-blue-100 space-y-8">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            📊 Input Data Transaksi
+          <h2 className="text-2xl font-bold text-gray-800 bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+            <div className="flex items-center gap-2">
+              <Icons.Table className="h-6 w-6" />
+              Input Data Transaksi
+            </div>
           </h2>
           <p className="text-gray-600 text-sm mt-1">Kelola data transaksi harian terapis</p>
         </div>
@@ -349,15 +325,17 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
             title="Hapus semua data transaksi"
             disabled={tableData.length === 0}
           >
-            <span className="text-lg">🗑️</span> Hapus Semua
+            <Icons.Trash className="h-5 w-5" /> Hapus Semua
           </button>   
         </div>
       </div>
 
       {/* Form Input Section */}
-      <div className="bg-gradient-to-br from-indigo-50 to-white p-6 rounded-2xl border border-indigo-100 shadow-lg">
+      <div className="bg-gradient-to-br from-blue-50 to-white p-6 rounded-2xl border border-blue-100 shadow-lg">
         <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-          <span className="bg-indigo-100 p-2 rounded-lg">📝</span>
+          <div className="bg-blue-100 p-2 rounded-lg text-blue-600">
+            <Icons.Form className="h-5 w-5" />
+          </div>
           Form Input Transaksi Baru
         </h3>
         
@@ -370,7 +348,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
               type="date"
               value={formData.tanggal}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition duration-200 bg-white"
+              className="w-full p-3 border border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition duration-200 bg-white"
             />
           </div>
           <div>
@@ -380,7 +358,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
               placeholder="Nama terapis"
               value={formData.terapis}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition duration-200"
+              className="w-full p-3 border border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition duration-200"
             />
           </div>
           <div>
@@ -389,7 +367,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
               name="shift"
               value={formData.shift}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition duration-200 bg-white"
+              className="w-full p-3 border border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition duration-200 bg-white"
             >
               <option value="">Pilih Shift</option>
               <option value="A1">A1</option>
@@ -404,7 +382,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
               placeholder="Nama tamu"
               value={formData.namaTamu}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition duration-200"
+              className="w-full p-3 border border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition duration-200"
             />
           </div>
         </div>
@@ -425,20 +403,20 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
                     jenisTreatment: e.target.value,
                   }));
                 }}
-                className="w-full p-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition duration-200"
+                className="w-full p-3 border border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition duration-200"
               />
               {suggestions.length > 0 && (
-                <div className="absolute z-30 mt-1 bg-white border border-gray-200 rounded-xl w-full shadow-2xl max-h-60 overflow-y-auto">
+                <div className="absolute z-30 mt-1 bg-white border border-blue-200 rounded-xl w-full shadow-2xl max-h-60 overflow-y-auto">
                   {suggestions.map((s, i) => (
                     <div
                       key={i}
-                      className="p-3 hover:bg-indigo-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition duration-150"
+                      className="p-3 hover:bg-blue-50 cursor-pointer border-b border-blue-100 last:border-b-0 transition duration-150"
                       onClick={() => pickSuggestion(s)}
                     >
                       <div className="font-medium text-gray-800">{s.name}</div>
                       <div className="text-xs text-gray-500 mt-1 flex justify-between">
                         <span>{s.durationMin} min</span>
-                        <span className="font-semibold text-indigo-600">Rp {s.price.toLocaleString("id-ID")}</span>
+                        <span className="font-semibold text-blue-600">Rp {s.price.toLocaleString("id-ID")}</span>
                       </div>
                     </div>
                   ))}
@@ -453,7 +431,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
               name="durasi"
               value={formData.durasi}
               onChange={handleDurasiChange}
-              className="w-full p-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition duration-200 bg-white"
+              className="w-full p-3 border border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition duration-200 bg-white"
             >
               <option value="">
                 {optionsForSelected.length
@@ -477,7 +455,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
               name="ruang"
               value={formData.ruang}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition duration-200 bg-white"
+              className="w-full p-3 border border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition duration-200 bg-white"
             >
               <option value="">Pilih Ruang</option>
               <option value="Facial 1">Facial 1</option>
@@ -505,7 +483,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
               placeholder="Masukkan nominal"
               value={formData.nominal || ""}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition duration-200"
+              className="w-full p-3 border border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition duration-200"
             />
           </div>
           
@@ -516,20 +494,20 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
               placeholder="Catatan tambahan (opsional)"
               value={formData.report}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition duration-200"
+              className="w-full p-3 border border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition duration-200"
             />
           </div>
         </div>
 
         {/* Info Komisi Otomatis */}
-        <div className="mb-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl">
+        <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl">
           <div className="flex items-center gap-3">
-            <div className="bg-green-100 p-2 rounded-lg">
-              <span className="text-green-600">💰</span>
+            <div className="bg-blue-100 p-2 rounded-lg text-blue-600">
+              <Icons.Money className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-medium text-green-800">Komisi otomatis: 2% dari nominal</p>
-              <p className="text-xs text-green-700">
+              <p className="text-sm font-medium text-blue-800">Komisi otomatis: 2% dari nominal</p>
+              <p className="text-xs text-blue-700">
                 {formData.nominal ? 
                   `Rp ${Number(formData.nominal).toLocaleString('id-ID')} → Komisi: Rp ${calculateKomisi(formData.nominal).toLocaleString('id-ID')}` : 
                   'Masukkan nominal untuk melihat komisi'
@@ -540,23 +518,23 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-4 border-t border-gray-200">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-4 border-t border-blue-200">
           <button
             onClick={handleAddOrUpdate}
             className={`px-8 py-3 rounded-xl font-semibold shadow-lg transition duration-300 flex items-center gap-2 ${
               editIndex !== null
                 ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700"
-                : "bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700"
+                : "bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700"
             }`}
           >
             {editIndex !== null ? (
               <>
-                <span className="text-lg">✅</span>
+                <Icons.Check className="h-5 w-5" />
                 Update Data
               </>
             ) : (
               <>
-                <span className="text-lg">➕</span>
+                <Icons.Add className="h-5 w-5" />
                 Tambah Data Baru
               </>
             )}
@@ -565,17 +543,19 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
       </div>
 
       {/* Data Table Section */}
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-        <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+      <div className="bg-white rounded-2xl shadow-xl border border-blue-200 overflow-hidden">
+        <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
           <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-            <span className="bg-white p-2 rounded-lg shadow">📋</span>
+            <div className="bg-white p-2 rounded-lg shadow text-blue-600">
+              <Icons.Table className="h-5 w-5" />
+            </div>
             Daftar Transaksi ({tableData.length} data)
           </h3>
         </div>
         
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gradient-to-r from-indigo-500 to-purple-600">
+          <table className="min-w-full divide-y divide-blue-200">
+            <thead className="bg-gradient-to-r from-blue-500 to-blue-600">
               <tr>
                 {[
                   "Tanggal",
@@ -599,7 +579,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
                 ))}
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-blue-100">
               {tableData.length === 0 ? (
                 <tr>
                   <td
@@ -607,7 +587,9 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
                     className="text-center py-12 text-gray-500"
                   >
                     <div className="flex flex-col items-center justify-center">
-                      <div className="text-5xl mb-4">📭</div>
+                      <div className="flex justify-center mb-4 text-blue-300">
+                        <Icons.EmptyData />
+                      </div>
                       <p className="text-lg font-medium text-gray-600 mb-2">Belum ada data transaksi</p>
                       <p className="text-gray-500">Mulai tambahkan data menggunakan form di atas</p>
                     </div>
@@ -615,7 +597,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
                 </tr>
               ) : (
                 tableData.map((r, i) => (
-                  <tr key={i} className="hover:bg-indigo-50/50 transition duration-150">
+                  <tr key={i} className="hover:bg-blue-50/50 transition duration-150">
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       {r.tanggal
                         ? new Date(r.tanggal).toLocaleDateString("id-ID", {
@@ -633,7 +615,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                         r.shift === 'A1' ? 'bg-blue-100 text-blue-800' :
                         r.shift === 'Md' ? 'bg-green-100 text-green-800' :
-                        'bg-purple-100 text-purple-800'
+                        'bg-blue-100 text-blue-800'
                       }`}>
                         {r.shift}
                       </span>
@@ -643,7 +625,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       {r.durasi ? (
-                        <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-lg text-xs">
+                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-lg text-xs">
                           {r.durasi} min
                         </span>
                       ) : ""}
@@ -653,18 +635,18 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
                     </td>
                     <td className="px-6 py-4 text-sm">
                       {r.ruang ? (
-                        <span className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-lg text-xs">
+                        <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-lg text-xs">
                           {r.ruang}
                         </span>
                       ) : "-"}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-700">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-700">
                       Rp {Number(r.nominal || 0).toLocaleString("id-ID")}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-700">
-                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-2 rounded-lg border border-green-200">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-700">
+                      <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-2 rounded-lg border border-blue-200">
                         Rp {Number(r.komisi || calculateKomisi(r.nominal)).toLocaleString("id-ID")}
-                        <div className="text-xs text-green-600 font-normal">
+                        <div className="text-xs text-blue-600 font-normal">
                           2% dari nominal
                         </div>
                       </div>
@@ -676,10 +658,10 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
                       <div className="flex space-x-2">
                         <button
                           onClick={() => handleEdit(i)}
-                          className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white rounded-lg font-medium hover:from-yellow-500 hover:to-yellow-600 transition duration-300 shadow flex items-center gap-1"
+                          className="px-4 py-2 bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-lg font-medium hover:from-blue-500 hover:to-blue-600 transition duration-300 shadow flex items-center gap-1"
                           title="Edit data"
                         >
-                          <span>✏️</span>
+                          <Icons.Edit className="h-4 w-4" />
                           Edit
                         </button>
                         <button
@@ -687,7 +669,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
                           className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg font-medium hover:from-red-600 hover:to-red-700 transition duration-300 shadow flex items-center gap-1"
                           title="Hapus data"
                         >
-                          <span>🗑️</span>
+                          <Icons.Delete className="h-4 w-4" />
                           Hapus
                         </button>
                       </div>
@@ -696,31 +678,31 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
                 ))
               )}
             </tbody>
-            <tfoot className="bg-gradient-to-r from-gray-50 to-gray-100">
+            <tfoot className="bg-gradient-to-r from-blue-50 to-blue-100">
               <tr>
                 <td
                   colSpan={7}
-                  className="px-6 py-4 font-bold text-right text-gray-700"
+                  className="px-6 py-4 font-bold text-right text-blue-700"
                 >
                   <div className="flex flex-col items-end">
                     <span>Total Periode:</span>
-                    <span className="text-sm font-normal text-gray-600">
+                    <span className="text-sm font-normal text-blue-600">
                       {minDate} s/d {maxDate}
                     </span>
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <div className="text-xl font-extrabold text-indigo-700 bg-white p-3 rounded-xl shadow-inner">
+                  <div className="text-xl font-extrabold text-blue-700 bg-white p-3 rounded-xl shadow-inner border border-blue-200">
                     Rp {totalNominal.toLocaleString("id-ID")}
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <div className="text-xl font-extrabold text-green-700 bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded-xl shadow-inner border border-green-200">
+                  <div className="text-xl font-extrabold text-blue-700 bg-gradient-to-r from-blue-50 to-blue-100 p-3 rounded-xl shadow-inner border border-blue-200">
                     Rp {totalKomisi.toLocaleString("id-ID")}
                   </div>
                 </td>
                 <td colSpan={2} className="px-6 py-4">
-                  <div className="text-xs text-gray-500 text-center">
+                  <div className="text-xs text-blue-600 text-center">
                     {tableData.length} transaksi
                   </div>
                 </td>
