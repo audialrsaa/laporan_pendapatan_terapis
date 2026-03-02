@@ -4,12 +4,24 @@ import { useEffect, useState } from "react";
 import SpreadsheetTable from "./components/SpreadsheetTable";
 import SummaryReport from "./components/SummaryReport";
 
-// Ikon User
-const UserIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-  </svg>
-);
+// Ikon yang lebih modern
+const Icons = {
+  User: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+    </svg>
+  ),
+  Logo: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+    </svg>
+  ),
+  AutoSave: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  )
+};
 
 export default function DashboardPage() {
   const [transactionData, setTransactionData] = useState([]);
@@ -18,7 +30,6 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("currentUser");
-    console.log("📌 Isi currentUser dari localStorage:", storedUser);
 
     if (storedUser) {
       try {
@@ -27,7 +38,7 @@ export default function DashboardPage() {
           setUserName(parsedUser.username);
         }
       } catch (err) {
-        console.error("❌ Gagal parse currentUser:", err);
+        console.error("Gagal parse currentUser:", err);
       }
     }
 
@@ -66,70 +77,89 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-4 md:p-6 space-y-6 md:space-y-8">
-      {/* HEADER SECTION */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl shadow-xl p-6 md:p-8">
-        <div className="text-center">
-          <h1 className="text-2xl md:text-3xl font-bold text-white uppercase tracking-wide mb-2">
-            LAPORAN PENDAPATAN TERAPIS
-          </h1>
-          {userName && (
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mt-2">
-              <div className="w-8 h-8 bg-white/30 rounded-full flex items-center justify-center">
-                <UserIcon className="text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 text-white shadow-2xl">
+        <div className="container mx-auto px-4 py-6 md:py-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-4">
+              <div className="bg-white/20 backdrop-blur-lg p-3 rounded-2xl shadow-xl">
+                <Icons.Logo />
               </div>
-              <span className="text-white font-medium capitalize text-sm md:text-base">
-                {userName}
-              </span>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+                  LAPORAN PENDAPATAN TERAPIS
+                </h1>
+                <p className="text-blue-100 text-sm mt-1">
+                  Sistem manajemen dan pelaporan pendapatan
+                </p>
+              </div>
             </div>
-          )}
+
+            <div className="flex flex-col items-end gap-2">
+              {userName && (
+                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-lg px-4 py-2 rounded-2xl">
+                  <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Icons.User />
+                  </div>
+                  <span className="font-medium capitalize">{userName}</span>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* SUMMARY REPORT SECTION */}
-      <div className="bg-white rounded-2xl shadow-xl border border-blue-200 p-4 md:p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-3 rounded-xl">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
+      <div className="container mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-3 rounded-xl shadow-lg shadow-blue-200">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-800">Summary Report</h2>
+                <p className="text-gray-600 text-sm">Ringkasan pendapatan dan komisi terapis</p>
+              </div>
+            </div>
           </div>
-          <div>
-            <h2 className="text-lg md:text-xl font-bold text-gray-800">
-              Summary Report
-            </h2>
-            <p className="text-blue-600 text-sm">
-              Ringkasan pendapatan dan komisi
+          <div className="p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <SummaryReport data={reportData} />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+          <div className="p-6">
+            <SpreadsheetTable
+              data={transactionData}
+              onSave={updateTransactionData}
+              onClear={clearTransactionData}
+              onAddToReport={addToReport}
+            />
+          </div>
+        </div>
+      </div>
+
+      <footer className="bg-white border-t border-gray-200 py-4 mt-8">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-2">
+            <p className="text-gray-600 text-sm">
+              © 2025 • Terapay
             </p>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-xs font-medium">
+                <Icons.AutoSave />
+                <span>Auto-save aktif</span>
+              </div>
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-xs text-gray-500">Data tersimpan di browser</span>
+            </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-          <SummaryReport data={reportData} />
-        </div>
-      </div>
-
-      {/* SPREADSHEET TABLE SECTION */}
-      <div className="bg-gradient-to-b from-white to-blue-50 rounded-2xl shadow-xl border border-blue-200 overflow-hidden">
-        <div className="p-4 md:p-6">
-          <SpreadsheetTable
-            data={transactionData}
-            onSave={updateTransactionData}
-            onClear={clearTransactionData}
-            onAddToReport={addToReport}
-          />
-        </div>
-      </div>
-
-      {/* FOOTER */}
-      <div className="text-center py-4">
-        <p className="text-blue-600 text-sm">
-          Sistem Laporan Pendapatan Terapis • Data tersimpan otomatis di browser Anda
-        </p>
-        <div className="flex justify-center items-center gap-2 mt-2">
-          <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-          <span className="text-xs text-blue-400">Auto-save aktif</span>
-        </div>
-      </div>
+      </footer>
     </div>
   );
 }
