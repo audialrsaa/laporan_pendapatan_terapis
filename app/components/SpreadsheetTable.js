@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import menuData from "../data/menu.json";
 
-// Ikon SVG yang lebih modern
 const Icons = {
   Add: () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -100,13 +99,11 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
   const initialLoadRef = useRef(false);
   const searchRef = useRef(null);
 
-  // Hitung komisi otomatis dari nominal
   const calculateKomisi = (nominal) => {
     const nominalNum = Number(nominal) || 0;
     return nominalNum * 0.02;
   };
 
-  // Load data dari localStorage
   useEffect(() => {
   if (initialLoadRef.current) return;
 
@@ -116,7 +113,6 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
     try {
       const parsedData = JSON.parse(savedTableData);
 
-      // 🔒 SAFE MIGRATION (anti hilang saat update fitur)
       const safeData = parsedData.map((item) => ({
         tanggal: item.tanggal ?? "",
         terapis: item.terapis ?? "",
@@ -147,14 +143,12 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
   setIsInitialized(true);
   initialLoadRef.current = true;
 }, []);
-  // Simpan data ke localStorage
   useEffect(() => {
     if (!isInitialized) return;
     localStorage.setItem("tableData", JSON.stringify(tableData));
     onSave?.(tableData);
   }, [tableData, isInitialized, onSave]);
 
-  // Sync dengan data dari parent
   useEffect(() => {
     if (!isInitialized) return;
     if (!data || data.length === 0) return;
@@ -173,7 +167,6 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
     localStorage.setItem("tableData", JSON.stringify(sorted));
   }, [data, isInitialized]);
 
-  // Click outside untuk menutup suggestions
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -366,7 +359,6 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
 
   return (
     <div className="space-y-6">
-      {/* Delete All Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-slide-up">
@@ -398,7 +390,6 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
         </div>
       )}
 
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -425,7 +416,6 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
         </button>   
       </div>
 
-      {/* Form Input Section */}
       <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
@@ -437,7 +427,6 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
         </div>
         
         <div className="p-6">
-          {/* Row 1 */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -491,7 +480,6 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
             </div>
           </div>
 
-          {/* Row 2 - Treatment Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="col-span-2" ref={searchRef}>
               <label className="block text-sm font-medium text-gray-700 mb-1">Jenis Treatment</label>
@@ -567,7 +555,6 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
             </div>
           </div>
 
-          {/* Row 3 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Ruang</label>
@@ -621,7 +608,6 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
             </div>
           </div>
 
-          {/* Info Komisi Otomatis */}
           <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl">
             <div className="flex items-center gap-3">
               <div className="bg-white p-2 rounded-lg shadow-sm text-blue-600">
@@ -639,7 +625,6 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
             </div>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex flex-col md:flex-row justify-end items-center gap-3 pt-4 border-t border-gray-200">
             {editIndex !== null && (
               <button
@@ -674,7 +659,6 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
         </div>
       </div>
 
-      {/* Data Table Section */}
       <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 border-b border-gray-200">
           <div className="flex justify-between items-center">

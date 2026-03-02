@@ -1,12 +1,8 @@
 "use client";
-
-//cek
-
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useState, useEffect } from "react";
 
-// Ikon SVG yang lebih modern
 const Icons = {
   Report: () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -57,9 +53,8 @@ const SummaryReport = ({ data }) => {
   const [activeTab, setActiveTab] = useState("perTerapis");
   const [expandedRows, setExpandedRows] = useState({});
 
-  // Proses data untuk summary report
  useEffect(() => {
-  if (!data) return; // jangan reset kalau data belum ada
+  if (!data) return; 
 
   if (data.length === 0) {
     setPerTerapisData({});
@@ -68,13 +63,11 @@ const SummaryReport = ({ data }) => {
     return;
   }
 
-    console.log("📊 Data di SummaryReport:", data);
+    console.log("Data di SummaryReport:", data);
 
-    // 1. Hitung total nominal
     const total = data.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
     setTotalNominal(total);
 
-    // 2. Hitung pendapatan per terapis (dengan detail bulan)
     const terapisReport = {};
     const bulanReport = {};
 
@@ -82,7 +75,6 @@ const SummaryReport = ({ data }) => {
       const { terapis, nominal, tanggal } = item;
       
       if (terapis && nominal) {
-        // Untuk per terapis
         if (!terapisReport[terapis]) {
           terapisReport[terapis] = { 
             totalNominal: 0,
@@ -104,7 +96,6 @@ const SummaryReport = ({ data }) => {
           terapisReport[terapis].detailBulan[bulanKey] += (Number(nominal) || 0);
         }
 
-        // Untuk per bulan (global)
         if (tanggal) {
           const d = new Date(tanggal);
           const bulanKey = `${d.toLocaleString("id-ID", { month: "long" })} ${d.getFullYear()}`;
@@ -150,7 +141,6 @@ const SummaryReport = ({ data }) => {
       year: "numeric",
     });
 
-    // Header dengan gradient effect (simulasi dengan warna)
     doc.setFillColor(37, 99, 235);
     doc.rect(0, 0, 297, 25, 'F');
     
@@ -163,9 +153,6 @@ const SummaryReport = ({ data }) => {
     doc.setFont("helvetica", "normal");
     doc.text(`Tanggal Export: ${exportDate}`, 14, 22);
 
-    // ===============================
-    // 🔹 KELOMPOKKAN DATA PER BULAN
-    // ===============================
     const groupedByMonth = {};
 
     data.forEach((item) => {
@@ -186,9 +173,6 @@ const SummaryReport = ({ data }) => {
 
     let startY = 35;
 
-    // ===============================
-    // 🔹 LOOP SETIAP BULAN
-    // ===============================
     Object.entries(groupedByMonth).forEach(([bulan, transaksi]) => {
       // Kalau hampir mentok bawah halaman → tambah halaman baru
       if (startY > 180) {
@@ -257,12 +241,9 @@ const SummaryReport = ({ data }) => {
           fillColor: [249, 250, 251]
         }
       });
-
-      // Update posisi Y setelah tabel
       startY = doc.lastAutoTable.finalY + 10;
     });
 
-    // Tambah summary di halaman terakhir
     doc.addPage();
     doc.setFillColor(37, 99, 235);
     doc.rect(0, 0, 297, 15, 'F');
@@ -282,7 +263,6 @@ const SummaryReport = ({ data }) => {
     doc.save("Laporan_Pendapatan_Per_Bulan.pdf");
   };
 
-  // Fungsi untuk render baris per terapis
   const renderTerapisRows = () => {
     if (Object.keys(perTerapisData).length === 0) {
       return (
@@ -304,8 +284,7 @@ const SummaryReport = ({ data }) => {
     
     Object.entries(perTerapisData).forEach(([terapis, val], index) => {
       const isExpanded = expandedRows[`terapis-${terapis}`];
-      
-      // Baris utama untuk terapis
+
       rows.push(
         <tr
           key={`terapis-${terapis}`}
@@ -348,11 +327,9 @@ const SummaryReport = ({ data }) => {
         </tr>
       );
       
-      // Baris detail bulan untuk terapis ini (hanya jika expanded)
       if (isExpanded) {
         Object.entries(val.detailBulan)
           .sort((a, b) => {
-            // Sort by date descending
             const dateA = new Date(a[0].split(' ')[1], a[0].split(' ')[0]);
             const dateB = new Date(b[0].split(' ')[1], b[0].split(' ')[0]);
             return dateB - dateA;
@@ -388,7 +365,6 @@ const SummaryReport = ({ data }) => {
     return rows;
   };
 
-  // Fungsi untuk render baris per bulan
   const renderBulanRows = () => {
     if (Object.keys(perBulanData).length === 0) {
       return (
@@ -410,7 +386,6 @@ const SummaryReport = ({ data }) => {
     
     Object.entries(perBulanData)
       .sort((a, b) => {
-        // Sort by date descending
         const dateA = new Date(a[0].split(' ')[1], a[0].split(' ')[0]);
         const dateB = new Date(b[0].split(' ')[1], b[0].split(' ')[0]);
         return dateB - dateA;
@@ -418,7 +393,6 @@ const SummaryReport = ({ data }) => {
       .forEach(([bulan, val]) => {
         const isExpanded = expandedRows[`bulan-${bulan}`];
         
-        // Baris utama untuk bulan
         rows.push(
           <tr
             key={`bulan-${bulan}`}
@@ -461,10 +435,9 @@ const SummaryReport = ({ data }) => {
           </tr>
         );
         
-        // Baris detail terapis untuk bulan ini (hanya jika expanded)
         if (isExpanded) {
           Object.entries(val.terapis)
-            .sort((a, b) => b[1] - a[1]) // Sort by nominal descending
+            .sort((a, b) => b[1] - a[1]) 
             .forEach(([terapis, nominal]) => {
               rows.push(
                 <tr
@@ -498,7 +471,6 @@ const SummaryReport = ({ data }) => {
 
   return (
     <>
-      {/* Card Total Pendapatan */}
       <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden hover:shadow-2xl transition-shadow duration-300">
         <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-1"></div>
         <div className="p-6">
@@ -547,7 +519,6 @@ const SummaryReport = ({ data }) => {
         </div>
       </div>
 
-      {/* Tabel Pendapatan per Terapis & Per Bulan */}
       <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden lg:col-span-2">
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -561,7 +532,6 @@ const SummaryReport = ({ data }) => {
               <p className="text-gray-600 text-sm mt-1">Analisis berdasarkan terapis dan bulan</p>
             </div>
             
-            {/* Tab Navigation */}
             <div className="flex bg-gray-100 p-1 rounded-xl">
               <button
                 onClick={() => setActiveTab("perTerapis")}
@@ -589,7 +559,6 @@ const SummaryReport = ({ data }) => {
           </div>
         </div>
 
-        {/* Tabel Container */}
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -611,7 +580,6 @@ const SummaryReport = ({ data }) => {
           </table>
         </div>
 
-        {/* Footer Stats */}
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 border-t border-gray-200">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-4">
