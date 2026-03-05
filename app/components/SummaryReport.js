@@ -3,6 +3,9 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useState, useEffect } from "react";
 
+// ─── Nama terapis tunggal ────────────────────────────────────────────────────
+const NAMA_TERAPIS = "Adhe";
+
 const Icons = {
   Report: () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -46,37 +49,48 @@ const Icons = {
   )
 };
 
-const SummaryReport = ({ data }) => {
+const SummaryReport = ({ data, selectedBulan }) => {
   const [perTerapisData, setPerTerapisData] = useState({});
   const [perBulanData, setPerBulanData] = useState({});
   const [totalNominal, setTotalNominal] = useState(0);
   const [activeTab, setActiveTab] = useState("perTerapis");
   const [expandedRows, setExpandedRows] = useState({});
 
- useEffect(() => {
-  if (!data) return; 
+  useEffect(() => {
+    if (!data) return;
 
-  if (data.length === 0) {
-    setPerTerapisData({});
-    setPerBulanData({});
-    setTotalNominal(0);
-    return;
-  }
+    if (data.length === 0) {
+      setPerTerapisData({});
+      setPerBulanData({});
+      setTotalNominal(0);
+      return;
+    }
 
-    console.log("Data di SummaryReport:", data);
+    // Filter data berdasarkan bulan yang dipilih
+    const filteredData = selectedBulan
+      ? data.filter(item => {
+          if (!item.tanggal) return false;
+          const d = new Date(item.tanggal);
+          const bulanKey = `${d.toLocaleString("id-ID", { month: "long" })} ${d.getFullYear()}`;
+          return bulanKey === selectedBulan;
+        })
+      : data;
 
-    const total = data.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
+    const total = filteredData.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
     setTotalNominal(total);
 
     const terapisReport = {};
     const bulanReport = {};
 
     data.forEach(item => {
-      const { terapis, nominal, tanggal } = item;
-      
-      if (terapis && nominal) {
+      // ── Normalisasi: trim spasi + paksa nama terapis = NAMA_TERAPIS ──
+      const terapis = NAMA_TERAPIS;
+      const nominal = item.nominal;
+      const tanggal = item.tanggal;
+
+      if (nominal) {
         if (!terapisReport[terapis]) {
-          terapisReport[terapis] = { 
+          terapisReport[terapis] = {
             totalNominal: 0,
             detailBulan: {},
             totalTransaksi: 0
@@ -85,31 +99,25 @@ const SummaryReport = ({ data }) => {
         terapisReport[terapis].totalNominal += (Number(nominal) || 0);
         terapisReport[terapis].totalTransaksi += 1;
 
-        // Tambahkan detail per bulan untuk setiap terapis
         if (tanggal) {
           const d = new Date(tanggal);
           const bulanKey = `${d.toLocaleString("id-ID", { month: "long" })} ${d.getFullYear()}`;
-          
+
           if (!terapisReport[terapis].detailBulan[bulanKey]) {
             terapisReport[terapis].detailBulan[bulanKey] = 0;
           }
           terapisReport[terapis].detailBulan[bulanKey] += (Number(nominal) || 0);
-        }
 
-        if (tanggal) {
-          const d = new Date(tanggal);
-          const bulanKey = `${d.toLocaleString("id-ID", { month: "long" })} ${d.getFullYear()}`;
-          
           if (!bulanReport[bulanKey]) {
-            bulanReport[bulanKey] = { 
-              totalNominal: 0, 
+            bulanReport[bulanKey] = {
+              totalNominal: 0,
               terapis: {},
               totalTransaksi: 0
             };
           }
           bulanReport[bulanKey].totalNominal += (Number(nominal) || 0);
           bulanReport[bulanKey].totalTransaksi += 1;
-          
+
           if (!bulanReport[bulanKey].terapis[terapis]) {
             bulanReport[bulanKey].terapis[terapis] = 0;
           }
@@ -120,7 +128,7 @@ const SummaryReport = ({ data }) => {
 
     setPerTerapisData(terapisReport);
     setPerBulanData(bulanReport);
-  }, [data]);
+  }, [data, selectedBulan]);
 
   const totalKomisi = totalNominal * 0.02;
 
@@ -131,7 +139,6 @@ const SummaryReport = ({ data }) => {
     }));
   };
 
-  // export ke PDF
   const handleExportPDF = () => {
     const doc = new jsPDF("l", "mm", "a4");
 
@@ -143,7 +150,7 @@ const SummaryReport = ({ data }) => {
 
     doc.setFillColor(37, 99, 235);
     doc.rect(0, 0, 297, 25, 'F');
-    
+
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
@@ -174,12 +181,9 @@ const SummaryReport = ({ data }) => {
     let startY = 35;
 
     Object.entries(groupedByMonth).forEach(([bulan, transaksi]) => {
-      // Kalau hampir mentok bawah halaman → tambah halaman baru
       if (startY > 180) {
         doc.addPage();
         startY = 20;
-        
-        // Header halaman baru
         doc.setFillColor(37, 99, 235);
         doc.rect(0, 0, 297, 10, 'F');
         startY = 15;
@@ -192,7 +196,7 @@ const SummaryReport = ({ data }) => {
 
       const rows = transaksi.map((item) => [
         new Date(item.tanggal).toLocaleDateString("id-ID"),
-        item.terapis,
+        NAMA_TERAPIS,
         item.shift,
         item.jenisTreatment,
         item.durasi ? `${item.durasi} min` : "",
@@ -214,13 +218,13 @@ const SummaryReport = ({ data }) => {
         ]],
         body: rows,
         startY: startY + 5,
-        styles: { 
+        styles: {
           fontSize: 8,
           cellPadding: 3,
           lineColor: [226, 232, 240],
           lineWidth: 0.1,
         },
-        headStyles: { 
+        headStyles: {
           fillColor: [37, 99, 235],
           textColor: [255, 255, 255],
           fontSize: 8,
@@ -247,18 +251,18 @@ const SummaryReport = ({ data }) => {
     doc.addPage();
     doc.setFillColor(37, 99, 235);
     doc.rect(0, 0, 297, 15, 'F');
-    
+
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
     doc.text("RINGKASAN KESELURUHAN", 14, 10);
-    
+
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(12);
     doc.text(`Total Pendapatan: Rp ${totalNominal.toLocaleString('id-ID')}`, 20, 30);
     doc.text(`Total Komisi (2%): Rp ${totalKomisi.toLocaleString('id-ID')}`, 20, 40);
     doc.text(`Total Transaksi: ${data.length} transaksi`, 20, 50);
-    doc.text(`Total Terapis: ${Object.keys(perTerapisData).length} terapis`, 20, 60);
+    doc.text(`Terapis: ${NAMA_TERAPIS}`, 20, 60);
 
     doc.save("Laporan_Pendapatan_Per_Bulan.pdf");
   };
@@ -281,8 +285,8 @@ const SummaryReport = ({ data }) => {
     }
 
     const rows = [];
-    
-    Object.entries(perTerapisData).forEach(([terapis, val], index) => {
+
+    Object.entries(perTerapisData).forEach(([terapis, val]) => {
       const isExpanded = expandedRows[`terapis-${terapis}`];
 
       rows.push(
@@ -326,7 +330,7 @@ const SummaryReport = ({ data }) => {
           </td>
         </tr>
       );
-      
+
       if (isExpanded) {
         Object.entries(val.detailBulan)
           .sort((a, b) => {
@@ -361,7 +365,7 @@ const SummaryReport = ({ data }) => {
           });
       }
     });
-    
+
     return rows;
   };
 
@@ -383,7 +387,7 @@ const SummaryReport = ({ data }) => {
     }
 
     const rows = [];
-    
+
     Object.entries(perBulanData)
       .sort((a, b) => {
         const dateA = new Date(a[0].split(' ')[1], a[0].split(' ')[0]);
@@ -392,7 +396,7 @@ const SummaryReport = ({ data }) => {
       })
       .forEach(([bulan, val]) => {
         const isExpanded = expandedRows[`bulan-${bulan}`];
-        
+
         rows.push(
           <tr
             key={`bulan-${bulan}`}
@@ -434,10 +438,10 @@ const SummaryReport = ({ data }) => {
             </td>
           </tr>
         );
-        
+
         if (isExpanded) {
           Object.entries(val.terapis)
-            .sort((a, b) => b[1] - a[1]) 
+            .sort((a, b) => b[1] - a[1])
             .forEach(([terapis, nominal]) => {
               rows.push(
                 <tr
@@ -465,7 +469,7 @@ const SummaryReport = ({ data }) => {
             });
         }
       });
-    
+
     return rows;
   };
 
@@ -485,7 +489,7 @@ const SummaryReport = ({ data }) => {
               </p>
             </div>
           </div>
-          
+
           <div className="space-y-3">
             <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
               <span className="text-sm font-medium text-gray-700">Komisi 2%</span>
@@ -493,7 +497,7 @@ const SummaryReport = ({ data }) => {
                 Rp {totalKomisi.toLocaleString('id-ID')}
               </span>
             </div>
-            
+
             <button
               onClick={handleExportPDF}
               className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-3 rounded-xl font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 group"
@@ -504,7 +508,7 @@ const SummaryReport = ({ data }) => {
                 {data.length}
               </span>
             </button>
-            
+
             <div className="flex justify-between text-sm text-gray-600 px-2 pt-2 border-t border-gray-100">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
@@ -512,7 +516,7 @@ const SummaryReport = ({ data }) => {
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
-                <span>{Object.keys(perTerapisData).length} terapis</span>
+                <span>{NAMA_TERAPIS}</span>
               </div>
             </div>
           </div>
@@ -531,28 +535,28 @@ const SummaryReport = ({ data }) => {
               </h2>
               <p className="text-gray-600 text-sm mt-1">Analisis berdasarkan terapis dan bulan</p>
             </div>
-            
+
             <div className="flex bg-gray-100 p-1 rounded-xl">
               <button
                 onClick={() => setActiveTab("perTerapis")}
                 className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
-                  activeTab === "perTerapis" 
-                    ? 'bg-white text-blue-600 shadow-md' 
+                  activeTab === "perTerapis"
+                    ? 'bg-white text-blue-600 shadow-md'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
                 }`}
               >
-                <Icons.User className="h-4 w-4" />
+                <Icons.User />
                 Per Terapis
               </button>
               <button
                 onClick={() => setActiveTab("perBulan")}
                 className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
-                  activeTab === "perBulan" 
-                    ? 'bg-white text-blue-600 shadow-md' 
+                  activeTab === "perBulan"
+                    ? 'bg-white text-blue-600 shadow-md'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
                 }`}
               >
-                <Icons.Calendar className="h-4 w-4" />
+                <Icons.Calendar />
                 Per Bulan
               </button>
             </div>

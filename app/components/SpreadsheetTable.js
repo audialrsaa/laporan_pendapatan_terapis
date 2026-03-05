@@ -65,6 +65,22 @@ const Icons = {
   )
 };
 
+// ─── Nama terapis yang dipakai di seluruh app ───────────────────────────────
+const NAMA_TERAPIS = "Adhe";
+
+const EMPTY_FORM = {
+  tanggal: "",
+  terapis: NAMA_TERAPIS,
+  shift: "",
+  jenisTreatment: "",
+  durasi: "",
+  namaTamu: "",
+  ruang: "",
+  report: "",
+  nominal: "",
+  komisi: 0,
+};
+
 const buildFlatMenu = (menu) =>
   menu.flatMap((m) =>
     m.options.map((opt, idx) => ({
@@ -76,23 +92,22 @@ const buildFlatMenu = (menu) =>
     }))
   );
 
+// Normalisasi entry sebelum disimpan: trim semua string, paksa terapis = NAMA_TERAPIS
+const normalizeEntry = (entry) => ({
+  ...entry,
+  terapis: NAMA_TERAPIS,
+  namaTamu: (entry.namaTamu || "").trim(),
+  jenisTreatment: (entry.jenisTreatment || "").trim(),
+  ruang: (entry.ruang || "").trim(),
+  report: (entry.report || "").trim(),
+});
+
 const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
   const [tableData, setTableData] = useState([]);
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [formData, setFormData] = useState({
-    tanggal: "",
-    terapis: "",
-    shift: "",
-    jenisTreatment: "",
-    durasi: "",
-    namaTamu: "",
-    ruang: "",
-    report: "",
-    nominal: "",
-    komisi: 0,
-  });
+  const [formData, setFormData] = useState(EMPTY_FORM);
   const [editIndex, setEditIndex] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -105,44 +120,41 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
   };
 
   useEffect(() => {
-  if (initialLoadRef.current) return;
+    if (initialLoadRef.current) return;
 
-  const savedTableData = localStorage.getItem("tableData");
+    const savedTableData = localStorage.getItem("tableData");
 
-  if (savedTableData) {
-    try {
-      const parsedData = JSON.parse(savedTableData);
+    if (savedTableData) {
+      try {
+        const parsedData = JSON.parse(savedTableData);
 
-      const safeData = parsedData.map((item) => ({
-        tanggal: item.tanggal ?? "",
-        terapis: item.terapis ?? "",
-        shift: item.shift ?? "",
-        jenisTreatment: item.jenisTreatment ?? "",
-        durasi: item.durasi ?? "",
-        namaTamu: item.namaTamu ?? "",
-        ruang: item.ruang ?? "",
-        report: item.report ?? "",
-        nominal: item.nominal ?? 0,
-        komisi:
-          item.komisi !== undefined
-            ? item.komisi
-            : calculateKomisi(item.nominal),
-      }));
+        const safeData = parsedData.map((item) => ({
+          ...normalizeEntry(item),
+          tanggal: item.tanggal ?? "",
+          shift: item.shift ?? "",
+          durasi: item.durasi ?? "",
+          nominal: item.nominal ?? 0,
+          komisi:
+            item.komisi !== undefined
+              ? item.komisi
+              : calculateKomisi(item.nominal),
+        }));
 
-      const sorted = [...safeData].sort(
-        (a, b) => new Date(a.tanggal) - new Date(b.tanggal)
-      );
+        const sorted = [...safeData].sort(
+          (a, b) => new Date(a.tanggal) - new Date(b.tanggal)
+        );
 
-      setTableData(sorted);
-      onSave?.(sorted);
-    } catch (err) {
-      console.error("❌ Gagal parse tableData dari localStorage:", err);
+        setTableData(sorted);
+        onSave?.(sorted);
+      } catch (err) {
+        console.error("❌ Gagal parse tableData dari localStorage:", err);
+      }
     }
-  }
 
-  setIsInitialized(true);
-  initialLoadRef.current = true;
-}, []);
+    setIsInitialized(true);
+    initialLoadRef.current = true;
+  }, []);
+
   useEffect(() => {
     if (!isInitialized) return;
     localStorage.setItem("tableData", JSON.stringify(tableData));
@@ -155,7 +167,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
     if (tableData.length > 0) return;
 
     const dataWithKomisi = data.map(item => ({
-      ...item,
+      ...normalizeEntry(item),
       komisi: item.komisi || calculateKomisi(item.nominal)
     }));
 
@@ -197,15 +209,15 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    // Jangan izinkan perubahan field terapis
+    if (name === "terapis") return;
     const newFormData = {
       ...formData,
       [name]: value,
     };
-    
     if (name === "nominal") {
       newFormData.komisi = calculateKomisi(value);
     }
-    
     setFormData(newFormData);
   };
 
@@ -221,7 +233,6 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
       nominal: sug.price,
       komisi: calculateKomisi(sug.price),
     };
-    
     setFormData(newFormData);
     setQuery("");
     setSuggestions([]);
@@ -239,9 +250,9 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
         );
         if (opt) price = opt.price;
       }
-      return { 
-        ...prev, 
-        durasi: dur, 
+      return {
+        ...prev,
+        durasi: dur,
         nominal: price,
         komisi: calculateKomisi(price)
       };
@@ -262,20 +273,19 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
   const handleAddOrUpdate = () => {
     if (
       !formData.tanggal ||
-      !formData.terapis ||
       !formData.shift ||
       !formData.nominal
     ) {
-      alert("Tanggal, Terapis, Shift, dan Nominal wajib diisi!");
+      alert("Tanggal, Shift, dan Nominal wajib diisi!");
       return;
     }
 
-    let newTable;
-    const newEntry = {
+    const newEntry = normalizeEntry({
       ...formData,
       komisi: calculateKomisi(formData.nominal)
-    };
+    });
 
+    let newTable;
     if (editIndex !== null) {
       newTable = [...tableData];
       newTable[editIndex] = newEntry;
@@ -286,24 +296,12 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
     }
 
     newTable.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
-
     setTableData(newTable);
-    setFormData({
-      tanggal: "",
-      terapis: "",
-      shift: "",
-      jenisTreatment: "",
-      durasi: "",
-      namaTamu: "",
-      ruang: "",
-      report: "",
-      nominal: "",
-      komisi: 0,
-    });
+    setFormData(EMPTY_FORM);
   };
 
   const handleEdit = (i) => {
-    setFormData(tableData[i]);
+    setFormData({ ...tableData[i], terapis: NAMA_TERAPIS });
     setEditIndex(i);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -318,18 +316,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
 
   const handleCancelEdit = () => {
     setEditIndex(null);
-    setFormData({
-      tanggal: "",
-      terapis: "",
-      shift: "",
-      jenisTreatment: "",
-      durasi: "",
-      namaTamu: "",
-      ruang: "",
-      report: "",
-      nominal: "",
-      komisi: 0,
-    });
+    setFormData(EMPTY_FORM);
     setQuery("");
   };
 
@@ -337,12 +324,12 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
     (s, r) => s + (Number(r.nominal) || 0),
     0
   );
-  
+
   const totalKomisi = tableData.reduce(
     (s, r) => s + (Number(r.komisi) || 0),
     0
   );
-  
+
   const dates = tableData
     .map((r) => (r.tanggal ? new Date(r.tanggal) : null))
     .filter(Boolean);
@@ -364,12 +351,12 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-slide-up">
             <div className="flex items-center gap-3 mb-4">
               <div className="bg-red-100 p-3 rounded-full text-red-600">
-                <Icons.Trash className="h-6 w-6" />
+                <Icons.Trash />
               </div>
               <h3 className="text-xl font-bold text-gray-800">Hapus Semua Data</h3>
             </div>
             <p className="text-gray-600 mb-6">
-              Apakah Anda yakin ingin menghapus semua data transaksi? 
+              Apakah Anda yakin ingin menghapus semua data transaksi?
               Data yang sudah dihapus tidak dapat dikembalikan.
             </p>
             <div className="flex gap-3">
@@ -394,38 +381,38 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
         <div>
           <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
             <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-2 rounded-xl shadow-md shadow-blue-200">
-              <Icons.Table className="h-5 w-5" />
+              <Icons.Table />
             </div>
             Input Data Transaksi
           </h2>
           <p className="text-gray-600 text-sm mt-1">Kelola data transaksi harian terapis</p>
         </div>
-        
+
         <button
           onClick={handleDeleteAll}
           className="px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-medium hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg shadow-red-200 hover:shadow-xl flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={tableData.length === 0}
         >
-          <Icons.Trash className="h-5 w-5" /> 
+          <Icons.Trash />
           Hapus Semua
           {tableData.length > 0 && (
             <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs">
               {tableData.length}
             </span>
           )}
-        </button>   
+        </button>
       </div>
 
       <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
             <div className="bg-white p-2 rounded-lg shadow-sm text-blue-600">
-              <Icons.Form className="h-5 w-5" />
+              <Icons.Form />
             </div>
             {editIndex !== null ? 'Edit Transaksi' : 'Form Input Transaksi Baru'}
           </h3>
         </div>
-        
+
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
             <div>
@@ -440,18 +427,20 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
                 className="w-full p-3 border border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all duration-200 bg-white"
               />
             </div>
+
+            {/* ── Terapis: dikunci, selalu "Adhe" ── */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Terapis <span className="text-red-500">*</span>
+                Terapis
               </label>
               <input
                 name="terapis"
-                placeholder="Nama terapis"
-                value={formData.terapis}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all duration-200"
+                value={NAMA_TERAPIS}
+                disabled
+                className="w-full p-3 border border-gray-200 rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed font-medium"
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Shift <span className="text-red-500">*</span>
@@ -484,23 +473,21 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
             <div className="col-span-2" ref={searchRef}>
               <label className="block text-sm font-medium text-gray-700 mb-1">Jenis Treatment</label>
               <div className="relative">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Ketik nama treatment..."
-                    value={formData.jenisTreatment || query}
-                    onChange={(e) => {
-                      setQuery(e.target.value);
-                      setShowSuggestions(true);
-                      setFormData((prev) => ({
-                        ...prev,
-                        jenisTreatment: e.target.value,
-                      }));
-                    }}
-                    onFocus={() => setShowSuggestions(true)}
-                    className="w-full p-3  border border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all duration-200"
-                  />
-                </div>
+                <input
+                  type="text"
+                  placeholder="Ketik nama treatment..."
+                  value={formData.jenisTreatment || query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setShowSuggestions(true);
+                    setFormData((prev) => ({
+                      ...prev,
+                      jenisTreatment: e.target.value,
+                    }));
+                  }}
+                  onFocus={() => setShowSuggestions(true)}
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all duration-200"
+                />
                 {showSuggestions && suggestions.length > 0 && (
                   <div className="absolute z-30 mt-1 bg-white border border-gray-200 rounded-xl w-full shadow-2xl max-h-72 overflow-y-auto animate-slide-down">
                     {suggestions.map((s, i) => (
@@ -531,7 +518,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
                 )}
               </div>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Durasi</label>
               <select
@@ -581,7 +568,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
                 <option value="Nails">Nails</option>
               </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Nominal (Rp) <span className="text-red-500">*</span>
@@ -595,7 +582,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
                 className="w-full p-3 border border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all duration-200"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Report</label>
               <input
@@ -611,13 +598,13 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
           <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl">
             <div className="flex items-center gap-3">
               <div className="bg-white p-2 rounded-lg shadow-sm text-blue-600">
-                <Icons.Info className="h-5 w-5" />
+                <Icons.Info />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-blue-800">Komisi otomatis: 2% dari nominal</p>
                 <p className="text-xs text-blue-600 mt-1">
-                  {formData.nominal ? 
-                    `Rp ${Number(formData.nominal).toLocaleString('id-ID')} → Komisi: Rp ${calculateKomisi(formData.nominal).toLocaleString('id-ID')}` : 
+                  {formData.nominal ?
+                    `Rp ${Number(formData.nominal).toLocaleString('id-ID')} → Komisi: Rp ${calculateKomisi(formData.nominal).toLocaleString('id-ID')}` :
                     'Masukkan nominal untuk melihat komisi'
                   }
                 </p>
@@ -631,7 +618,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
                 onClick={handleCancelEdit}
                 className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-all duration-200 flex items-center gap-2"
               >
-                <Icons.Close className="h-5 w-5" />
+                <Icons.Close />
                 Batal
               </button>
             )}
@@ -645,12 +632,12 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
             >
               {editIndex !== null ? (
                 <>
-                  <Icons.Check className="h-5 w-5" />
+                  <Icons.Check />
                   Update Data
                 </>
               ) : (
                 <>
-                  <Icons.Add className="h-5 w-5" />
+                  <Icons.Add />
                   Tambah Data Baru
                 </>
               )}
@@ -664,7 +651,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
               <div className="bg-white p-2 rounded-lg shadow-sm text-blue-600">
-                <Icons.Table className="h-5 w-5" />
+                <Icons.Table />
               </div>
               Daftar Transaksi
             </h3>
@@ -673,7 +660,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
             </span>
           </div>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -703,10 +690,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
             <tbody className="bg-white divide-y divide-gray-200">
               {tableData.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={11}
-                    className="text-center py-16 text-gray-500"
-                  >
+                  <td colSpan={11} className="text-center py-16 text-gray-500">
                     <div className="flex flex-col items-center justify-center">
                       <div className="text-gray-300 mb-4">
                         <Icons.EmptyData />
@@ -729,7 +713,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
                         : ""}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {r.terapis}
+                      {NAMA_TERAPIS}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
@@ -780,14 +764,14 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
                           className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
                           title="Edit data"
                         >
-                          <Icons.Edit className="h-4 w-4" />
+                          <Icons.Edit />
                         </button>
                         <button
                           onClick={() => handleDelete(i)}
                           className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
                           title="Hapus data"
                         >
-                          <Icons.Delete className="h-4 w-4" />
+                          <Icons.Delete />
                         </button>
                       </div>
                     </td>
@@ -797,10 +781,7 @@ const SpreadsheetTable = ({ data, onSave, onClear, onAddToReport }) => {
             </tbody>
             <tfoot className="bg-gradient-to-r from-gray-50 to-gray-100">
               <tr>
-                <td
-                  colSpan={7}
-                  className="px-4 py-4 font-medium text-right text-gray-700"
-                >
+                <td colSpan={7} className="px-4 py-4 font-medium text-right text-gray-700">
                   <div className="flex flex-col items-end">
                     <span>Total Periode:</span>
                     <span className="text-sm font-normal text-gray-600">
